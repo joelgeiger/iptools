@@ -1,6 +1,8 @@
 /*
 package com.sibilantsolutions.iptools.test;
 
+import static com.sibilantsolutions.iptools.util.HexDump.simpleDump;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -53,7 +55,7 @@ public class IpToolsTester
 //                OutputStreamWriter ow = new OutputStreamWriter( outs );
                 String greeting = "Hi there!\n";
                 byte[] outBytes = greeting.getBytes( cs );
-                log.info( "Send={}: \n{}", outBytes.length, hexDump( outBytes ) );
+                log.info( "Send={}: \n{}", outBytes.length, simpleDump( outBytes ) );
                 outs.write( outBytes );
                 outs.flush();
 //                ow.write( greeting );
@@ -63,7 +65,7 @@ public class IpToolsTester
                 while ( ( numRead = ins.read( b ) ) >= 0 )
                 {
 //                    String str = new String( b, 0, numRead, cs );
-                    log.info( "Read={}: \n{}", numRead, hexDump( b, 0, numRead ) );
+                    log.info( "Read={}: \n{}", numRead, simpleDump( b, 0, numRead ) );
                 }
                 log.info( "Socket closed by remote peer (read returned={})={}.", numRead, socket );
                 socket.close();
@@ -75,27 +77,5 @@ public class IpToolsTester
         }
     }
 
-    static public String hexDump( byte[] bytes )
-    {
-        return hexDump( bytes, 0, bytes.length );
-    }
-    
-    static public String hexDump( final byte[] bytes, final int offset, final int len )
-    {
-        final char[] hexChars = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 
-                'A', 'B', 'C', 'D', 'E', 'F'};
-        char[] chars = new char[len * 3 - 1];
-        for ( int i = offset; i < offset + len; i++ )
-        {
-            int b = bytes[i] & 0xFF;
-            chars[i * 3] = hexChars[b / 16];    //Or >>>4, but compiler may already do this.
-            chars[i * 3 + 1] = hexChars[b % 16];    //Or &0x0F, but compiler may already do this.
-            if ( i + 1 < len )
-                chars[i * 3 + 2] = ' ';
-        }
-        
-        
-        return new String( chars );
-    }
 }
 */
