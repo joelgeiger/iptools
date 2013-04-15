@@ -34,10 +34,16 @@ public abstract class HexDump
         int remainder = len % 16;
         if ( len > 0 && remainder == 0 )    //Last line has exactly 16.
             remainder = 16;
+        String lengthInHex = numToHex( len );
+        String lengthInDec = "" + len;
         int offsetLen = MIN_OFFSET_LEN; //TODO
         int dumpLen = offsetLen + 
                       BEGIN_SEP.length() +
                       PRETTY_HEADER.length() +
+                      3 + //" 0x"
+                      lengthInHex.length() +
+                      1 + //slash
+                      lengthInDec.length() +
                       1 +   //newline
                       lines * (
                         offsetLen + 
@@ -46,7 +52,7 @@ public abstract class HexDump
                         MID_SEP.length() +
                         END_SEP.length()
                         ) +
-                      ( lines - 1 ) * (16 + 1) +
+                      ( lines - 1 ) * (16 + 1) + //16 bytes plus newline
                       remainder;
         
         return dumpLen;
@@ -100,7 +106,7 @@ public abstract class HexDump
         for ( int i = 0; i < offsetWidth; i++ )
             buf.append( ' ' );
         
-        buf.append( PRETTY_HEADER + '\n' );
+        buf.append( PRETTY_HEADER + " 0x" + numToHex( length ) + '/' + length + '\n' );
         
         int counter = offset;
         
