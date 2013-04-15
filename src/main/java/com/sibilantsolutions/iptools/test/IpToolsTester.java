@@ -5,11 +5,9 @@ import static com.sibilantsolutions.iptools.util.HexDump.simpleDump;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.charset.Charset;
 
 import javax.net.ServerSocketFactory;
 
@@ -41,8 +39,6 @@ public class IpToolsTester
     {
         ServerSocketFactory ssf = ServerSocketFactory.getDefault();
 
-        Charset cs = Charset.forName( "US-ASCII" );
-        
         try
         {
             InetAddress loopback = InetAddress.getByName( null );
@@ -52,34 +48,66 @@ public class IpToolsTester
             while ( isRunning )
             {
                 log.info( "Waiting to accept connection={}.", serverSocket );
-                Socket socket = serverSocket.accept();
+                final Socket socket = serverSocket.accept();
                 log.info( "Accepted connection={} from server={}.", socket, serverSocket );
-                SocketListenerI listener = new HttpReceiver();
-                InputStream ins = socket.getInputStream();
-                OutputStream outs = socket.getOutputStream();
-//                OutputStreamWriter ow = new OutputStreamWriter( outs );
-                String greeting = "Hi there!\n";
-                byte[] outBytes = greeting.getBytes( cs );
-                log.info( "Send={}: \n{}", outBytes.length, simpleDump( outBytes ) );
-                outs.write( outBytes );
-                outs.flush();
-//                ow.write( greeting );
-//                ow.flush();
-                byte[] b = new byte[1024];
-                int numRead;
-                while ( ( numRead = ins.read( b ) ) >= 0 )
-                {
-                    log.info( "Read={}: \n{}", numRead, simpleDump( b, 0, numRead ) );
-                    listener.onReceive( new ReceiveEvt( b, numRead, socket ) );
-                }
-                log.info( "Socket closed by remote peer (read returned={})={}.", numRead, socket );
-                socket.close();
+                Runnable r = new Runnable() {
+                    
+                    @Override
+                    public void run()
+                    {
+                        log.info( "Started receiver thread for socket={}.", socket );
+                        try
+                        {
+                            readLoop( socket );
+                        }
+                        catch ( IOException e )
+                        {
+                            log.error( "Trouble in read loop:", new Exception( e ) );
+                        }
+                        log.info( "Finished receiver thread for socket={}.", socket );
+                    }
+                };
+                new Thread( r ).start();
             }
         }
         catch ( IOException e )
         {
-            log.error( "Trouble with socketry:", e );
+            throw new RuntimeException( "Trouble with socketry:", e );
         }
+    }
+
+    private void readLoop( Socket socket ) throws IOException
+    {
+//        Charset cs = Charset.forName( "US-ASCII" );
+        
+        SocketListenerI listener = new HttpReceiver();
+        InputStream ins = socket.getInputStream();
+//        OutputStream outs = socket.getOutputStream();
+//                OutputStreamWriter ow = new OutputStreamWriter( outs );
+//        String greeting = "Hi there!\n";
+//        byte[] outBytes = greeting.getBytes( cs );
+//        log.info( "Send={}: \n{}", outBytes.length, simpleDump( outBytes ) );
+//        outs.write( outBytes );
+//        outs.flush();
+//                ow.write( greeting );
+//                ow.flush();
+        byte[] b = new byte[1024];
+        int numRead;
+        while ( ( numRead = ins.read( b ) ) >= 0 )
+        {
+            log.info( "Read={}: \n{}", numRead, simpleDump( b, 0, numRead ) );
+            try
+            {
+                listener.onReceive( new ReceiveEvt( b, numRead, socket ) );
+            }
+            catch ( Exception e )
+            {
+                log.error( "Trouble processing data:", new Exception( e ) );
+                //TODO: Send a 503.
+            }
+        }
+        log.info( "Socket closed by remote peer (read returned={})={}.", numRead, socket );
+        socket.close();
     }
 
 }
