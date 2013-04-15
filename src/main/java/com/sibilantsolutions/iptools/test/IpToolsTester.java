@@ -16,6 +16,10 @@ import javax.net.ServerSocketFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sibilantsolutions.iptools.event.ReceiveEvt;
+import com.sibilantsolutions.iptools.event.SocketListenerI;
+import com.sibilantsolutions.iptools.layer.app.http.HttpReceiver;
+
 public class IpToolsTester
 {
     final static private Logger log = LoggerFactory.getLogger( IpToolsTester.class );
@@ -50,6 +54,7 @@ public class IpToolsTester
                 log.info( "Waiting to accept connection={}.", serverSocket );
                 Socket socket = serverSocket.accept();
                 log.info( "Accepted connection={} from server={}.", socket, serverSocket );
+                SocketListenerI listener = new HttpReceiver();
                 InputStream ins = socket.getInputStream();
                 OutputStream outs = socket.getOutputStream();
 //                OutputStreamWriter ow = new OutputStreamWriter( outs );
@@ -64,8 +69,8 @@ public class IpToolsTester
                 int numRead;
                 while ( ( numRead = ins.read( b ) ) >= 0 )
                 {
-//                    String str = new String( b, 0, numRead, cs );
                     log.info( "Read={}: \n{}", numRead, simpleDump( b, 0, numRead ) );
+                    listener.onReceive( new ReceiveEvt( b, numRead, socket ) );
                 }
                 log.info( "Socket closed by remote peer (read returned={})={}.", numRead, socket );
                 socket.close();
