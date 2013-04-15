@@ -1,7 +1,7 @@
 /*
 package com.sibilantsolutions.iptools.test;
 
-import static com.sibilantsolutions.iptools.util.HexDump.simpleDump;
+import static com.sibilantsolutions.iptools.util.HexDumpDeferred.simpleDump;
 
 import java.io.IOException;
 import java.io.InputStream;

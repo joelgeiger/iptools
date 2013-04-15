@@ -10,7 +10,7 @@ package com.sibilantsolutions.iptools.util;
  * @author jt
  *
  */
-public class HexDump
+public class HexDumpDeferred
 {
     private enum HexDumpMode
     {
@@ -22,7 +22,7 @@ public class HexDump
     private int len;
     private HexDumpMode mode;
 
-    private HexDump( byte[] bytes, int offset, int len, HexDumpMode mode )   //Prevent external instantiation.
+    private HexDumpDeferred( byte[] bytes, int offset, int len, HexDumpMode mode )   //Prevent external instantiation.
     {
         this.bytes = bytes;
         this.offset = offset;
@@ -47,14 +47,14 @@ public class HexDump
         return new String( chars );
     }
 
-    static public HexDump simpleDump( byte[] bytes )
+    static public HexDumpDeferred simpleDump( byte[] bytes )
     {
         return simpleDump( bytes, 0, bytes.length );
     }
 
-    static public HexDump simpleDump( byte[] bytes, int offset, int len )
+    static public HexDumpDeferred simpleDump( byte[] bytes, int offset, int len )
     {
-        return new HexDump( bytes, offset, len, HexDumpMode.SIMPLE );
+        return new HexDumpDeferred( bytes, offset, len, HexDumpMode.SIMPLE );
     }
 
     @Override
