@@ -143,7 +143,7 @@ public abstract class HexDump
                     buf.append( lo );
                     buf.append( ' ' );
                     
-                    if ( c == ' ' || ( c >= '0' && c < 127 ) )  //TODO
+                    if ( c >= ' ' && c <= '~' )
                         charBuf.append( c );
                     else
                         charBuf.append( '.' );
