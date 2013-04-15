@@ -14,7 +14,8 @@ public class HexDumpDeferred
 {
     private enum HexDumpMode
     {
-        SIMPLE
+        SIMPLE,
+        PRETTY
     }
 
     private byte[] bytes;
@@ -30,21 +31,14 @@ public class HexDumpDeferred
         this.mode = mode;
     }
 
-    static private String doSimple( final byte[] bytes, final int offset, final int len )
+    static public HexDumpDeferred prettyDump( byte[] bytes )
     {
-        final char[] hexChars = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 
-                'A', 'B', 'C', 'D', 'E', 'F'};
-        char[] chars = new char[len * 3 - 1];
-        for ( int i = offset; i < offset + len; i++ )
-        {
-            int b = bytes[i] & 0xFF;
-            chars[i * 3] = hexChars[b / 16];    //Or >>>4, but compiler may already do this.
-            chars[i * 3 + 1] = hexChars[b % 16];    //Or &0x0F, but compiler may already do this.
-            if ( i + 1 < len )
-                chars[i * 3 + 2] = ' ';
-        }
+        return prettyDump( bytes, 0, bytes.length );
+    }
 
-        return new String( chars );
+    static public HexDumpDeferred prettyDump( byte[] bytes, int offset, int len )
+    {
+        return new HexDumpDeferred( bytes, offset, len, HexDumpMode.PRETTY );
     }
 
     static public HexDumpDeferred simpleDump( byte[] bytes )
@@ -63,7 +57,9 @@ public class HexDumpDeferred
         switch ( mode )
         {
             case SIMPLE:
-                return doSimple( bytes, offset, len );
+                return HexDump.simpleDump( bytes, offset, len );
+            case PRETTY:
+                return HexDump.prettyDump( bytes, offset, len );
             default:
                 throw new IllegalArgumentException( "Unexpected mode=" + mode );
         }

@@ -1,7 +1,7 @@
 /*
 package com.sibilantsolutions.iptools.test;
 
-import static com.sibilantsolutions.iptools.util.HexDumpDeferred.simpleDump;
+import static com.sibilantsolutions.iptools.util.HexDumpDeferred.prettyDump;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -95,7 +95,7 @@ public class IpToolsTester
         int numRead;
         while ( ( numRead = ins.read( b ) ) >= 0 )
         {
-            log.info( "Read={}: \n{}", numRead, simpleDump( b, 0, numRead ) );
+            log.info( "Read={}: \n{}", numRead, prettyDump( b, 0, numRead ) );
             try
             {
                 listener.onReceive( new ReceiveEvt( b, numRead, socket ) );
