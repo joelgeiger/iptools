@@ -34,9 +34,9 @@ public abstract class HexDump
         int remainder = len % 16;
         if ( len > 0 && remainder == 0 )    //Last line has exactly 16.
             remainder = 16;
-        String lengthInHex = numToHex( len );
+        String lengthInHex = pad( numToHex( len ), MIN_OFFSET_LEN, '0' );
         String lengthInDec = "" + len;
-        int offsetLen = MIN_OFFSET_LEN; //TODO
+        int offsetLen = Math.max( MIN_OFFSET_LEN, lengthInHex.length() );
         int dumpLen = offsetLen + 
                       BEGIN_SEP.length() +
                       PRETTY_HEADER.length() +
@@ -57,17 +57,32 @@ public abstract class HexDump
         
         return dumpLen;
     }
+    
+    /*package*/ static int numBytes( long num )
+    {
+        //return (int)( Math.log( num ) / Math.log( 16 ) ) + 0;
+        if ( num == 0 )
+            return 1;
+        
+        int count = 0;
+        while ( num > 0 )
+        {
+            count++;
+            num = num >>> 8;
+        }
+        
+        return count;
+    }
 
     static public String numToHex( long num )
     {
-        StringBuilder buf = new StringBuilder(); //TODO compute
+        StringBuilder buf = new StringBuilder();    //TODO Precompute the length.
         
         if ( num == 0 ) //HACK
             return "00";
         
         while ( num > 0 )
         {
-            //long c = num & 0xFF;
             int hi = (int)( (num & 0xF0) >>> 4 );
             int lo = (int)( num & 0x0F );
             String c = "" + HEX_CHARS[hi] + HEX_CHARS[lo];
@@ -76,6 +91,24 @@ public abstract class HexDump
         }
         
         return buf.toString();
+    }
+
+    static public String pad( String str, int len, char padChar )
+    {
+        int numPad = len - str.length();
+        
+        if ( numPad > 0 )
+        {
+            StringBuilder buf = new StringBuilder( str.length() + numPad );
+            for ( int i = 0; i < numPad; i++ )
+                buf.append( padChar );
+            
+            buf.append( str );
+            
+            str = buf.toString();
+        }
+        
+        return str;
     }
 
     static public String prettyDump( byte[] bytes )
@@ -100,13 +133,15 @@ public abstract class HexDump
         {
             lines = length / BYTES_PER_LINE + 1;
         }
+
+        final String lengthInHex = numToHex( length );
         
-        int offsetWidth = MIN_OFFSET_LEN + 2;   //TODO: Compute if need more than 4 for > 65535.
+        int offsetWidth = Math.max( MIN_OFFSET_LEN, lengthInHex.length() ) + BEGIN_SEP.length();
         
         for ( int i = 0; i < offsetWidth; i++ )
             buf.append( ' ' );
         
-        buf.append( PRETTY_HEADER + " 0x" + numToHex( length ) + '/' + length + '\n' );
+        buf.append( PRETTY_HEADER + " 0x" + pad( lengthInHex, MIN_OFFSET_LEN, '0' ) + '/' + length + '\n' );
         
         int counter = offset;
         
@@ -117,13 +152,8 @@ public abstract class HexDump
             
             int lineOffset = line * BYTES_PER_LINE;
 
-            if ( line == 0 )
-                buf.append( "0000" ); //TODO
-            else
-            {
-                buf.append( "00" ); //TODO
-                buf.append( numToHex( lineOffset ) );
-            }
+            buf.append( pad( numToHex( lineOffset ), MIN_OFFSET_LEN, '0' ) );
+            
             buf.append( BEGIN_SEP );
             
             StringBuilder charBuf = new StringBuilder( BYTES_PER_LINE );

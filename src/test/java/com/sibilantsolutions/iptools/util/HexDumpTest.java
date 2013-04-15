@@ -21,33 +21,48 @@ public class HexDumpTest
         assertEquals( "FFFFFFFF", HexDump.numToHex( 4294967295L ) );
     }
     
+
+    @Test
+    public void testNumBytes()
+    {
+        assertEquals( 1, HexDump.numBytes( 0x00 ) );
+        assertEquals( 1, HexDump.numBytes( 0x0F ) );
+        assertEquals( 1, HexDump.numBytes( 0x10 ) );
+        assertEquals( 1, HexDump.numBytes( 0xFF ) );
+        assertEquals( 2, HexDump.numBytes( 0x0100 ) );
+        assertEquals( 2, HexDump.numBytes( 0xFFFF ) );
+        assertEquals( 3, HexDump.numBytes( 0x010000 ) );
+        assertEquals( 3, HexDump.numBytes( 0xFFFFFF ) );
+        //assertEquals( 4, HexDump.numBytes( 0xFFFFFFFF ) );
+    }
+    
     @Test
     public void testPrettyDumpByteArray()
     {
         byte[] data = new byte[] { '1' };
 
         String s = HexDump.prettyDump( data );
-        assertEquals( "      -0 -1 -2 -3 -4 -5 -6 -7 | -8 -9 -A -B -C -D -E -F || 0x01/1\n" +
+        assertEquals( "      -0 -1 -2 -3 -4 -5 -6 -7 | -8 -9 -A -B -C -D -E -F || 0x0001/1\n" +
                       "0000: 31                      |                         || 1", s );
         assertEquals( s.length(), HexDump.computePrettyDumpLength( data.length ) );
 
         data = new byte[] { '1', '2', '3' };
         s = HexDump.prettyDump( data );
-        assertEquals( "      -0 -1 -2 -3 -4 -5 -6 -7 | -8 -9 -A -B -C -D -E -F || 0x03/3\n" +
+        assertEquals( "      -0 -1 -2 -3 -4 -5 -6 -7 | -8 -9 -A -B -C -D -E -F || 0x0003/3\n" +
                       "0000: 31 32 33                |                         || 123", s );
         assertEquals( s.length(), HexDump.computePrettyDumpLength( data.length ) );
 
 
         data = new byte[] { '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g' };
         s = HexDump.prettyDump( data );
-        assertEquals( "      -0 -1 -2 -3 -4 -5 -6 -7 | -8 -9 -A -B -C -D -E -F || 0x10/16\n" +
+        assertEquals( "      -0 -1 -2 -3 -4 -5 -6 -7 | -8 -9 -A -B -C -D -E -F || 0x0010/16\n" +
                       "0000: 31 32 33 34 35 36 37 38 | 39 61 62 63 64 65 66 67 || 123456789abcdefg", s );
         assertEquals( s.length(), HexDump.computePrettyDumpLength( data.length ) );
         
 
         data = new byte[] { '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h' };
         s = HexDump.prettyDump( data );
-        assertEquals( "      -0 -1 -2 -3 -4 -5 -6 -7 | -8 -9 -A -B -C -D -E -F || 0x11/17\n" +
+        assertEquals( "      -0 -1 -2 -3 -4 -5 -6 -7 | -8 -9 -A -B -C -D -E -F || 0x0011/17\n" +
                       "0000: 31 32 33 34 35 36 37 38 | 39 61 62 63 64 65 66 67 || 123456789abcdefg\n" +
                       "0010: 68                      |                         || h", s );
         assertEquals( s.length(), HexDump.computePrettyDumpLength( data.length ) );
@@ -57,7 +72,7 @@ public class HexDumpTest
     public void testPrettyDumpByteArray_empty()
     {
         String s = HexDump.prettyDump( new byte[0] );
-        assertEquals( "      -0 -1 -2 -3 -4 -5 -6 -7 | -8 -9 -A -B -C -D -E -F || 0x00/0\n" + 
+        assertEquals( "      -0 -1 -2 -3 -4 -5 -6 -7 | -8 -9 -A -B -C -D -E -F || 0x0000/0\n" + 
                       "0000:                         |                         || ", s );
         assertEquals( s.length(), HexDump.computePrettyDumpLength( 0 ) );
     }
