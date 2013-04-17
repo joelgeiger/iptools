@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sibilantsolutions.iptools.event.ReceiveEvt;
 import com.sibilantsolutions.iptools.event.SocketListenerI;
+import com.sibilantsolutions.iptools.gui.SocketTwoPane;
 import com.sibilantsolutions.iptools.layer.app.http.HttpReceiver;
 
 public class IpToolsTester
@@ -28,6 +29,7 @@ public class IpToolsTester
 
         log.info( "main() started." );
 
+        new SocketTwoPane().buildUi();
         new IpToolsTester().test();
 
         long endMs = System.currentTimeMillis();
