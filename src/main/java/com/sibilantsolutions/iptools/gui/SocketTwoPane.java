@@ -8,10 +8,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
-import java.nio.charset.Charset;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -25,13 +23,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sibilantsolutions.iptools.util.HexDump;
+import com.sibilantsolutions.iptools.util.Socker;
 import com.sibilantsolutions.iptools.util.StringEscape;
 
 public class SocketTwoPane
 {
     final static private Logger log = LoggerFactory.getLogger( SocketTwoPane.class );
-    
-    final static private Charset cs = Charset.forName( "ISO-8859-1" );
     
     private void doUi()
     {
@@ -91,18 +88,9 @@ public class SocketTwoPane
                                             String text = taBot.getText();
                                             text = StringEscape.escape( text );
                                             taBot.setText( "" );
-                                            byte[] bytes = text.getBytes( cs );
-                                            String dump = HexDump.prettyDump( bytes );
+                                            String dump = HexDump.prettyDump( text );
                                             taTop.append( dump + '\n' );
-                                            try
-                                            {
-                                                socket.getOutputStream().write( bytes );
-                                                socket.getOutputStream().flush();
-                                            }
-                                            catch ( IOException e )
-                                            {
-                                                throw new RuntimeException( e );
-                                            }
+                                            Socker.send( text, socket );
                                         }
                                     }
                                 } );

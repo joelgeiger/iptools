@@ -1,5 +1,7 @@
 package com.sibilantsolutions.iptools.util;
 
+import java.nio.charset.Charset;
+
 /**
  * Static methods to produce hex dumps in various formats.
  */
@@ -18,6 +20,8 @@ public abstract class HexDump
     final static private String END_SEP = "|| ";
     
     final static private int BYTES_PER_LINE = 16;
+    
+    final public static Charset cs = Charset.forName( "ISO-8859-1" );
     
     private HexDump() {}    //Prevent instantiation.
 
@@ -191,6 +195,12 @@ public abstract class HexDump
         }
         
         return buf.toString();
+    }
+
+    public static String prettyDump( String text )
+    {
+        byte[] bytes = text.getBytes( cs );
+        return prettyDump( bytes );
     }
 
     static public String simpleDump( final byte[] bytes, final int offset, final int len )

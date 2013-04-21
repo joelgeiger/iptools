@@ -80,7 +80,7 @@ public class HexDumpTest
     @Test( expected = NullPointerException.class )
     public void testPrettyDumpByteArray_null()
     {
-        HexDump.prettyDump( null );
+        HexDump.prettyDump( (byte[])null );
     }
 
 }

@@ -18,6 +18,7 @@ import com.sibilantsolutions.iptools.event.ReceiveEvt;
 import com.sibilantsolutions.iptools.event.SocketListenerI;
 import com.sibilantsolutions.iptools.gui.SocketTwoPane;
 import com.sibilantsolutions.iptools.layer.app.http.HttpReceiver;
+import com.sibilantsolutions.iptools.util.HexDump;
 
 public class IpToolsTester
 {
@@ -97,7 +98,7 @@ public class IpToolsTester
         int numRead;
         while ( ( numRead = ins.read( b ) ) >= 0 )
         {
-            log.info( "Read={}: \n{}", numRead, prettyDump( b, 0, numRead ) );
+            log.info( "Read=0x{}/{}: \n{}", HexDump.numToHex( numRead ), numRead, prettyDump( b, 0, numRead ) );
             try
             {
                 listener.onReceive( new ReceiveEvt( b, numRead, socket ) );
