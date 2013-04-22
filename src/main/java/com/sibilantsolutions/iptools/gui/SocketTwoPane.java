@@ -58,7 +58,7 @@ public class SocketTwoPane
         final JTextField txtHost = new JTextField();
         //final JTextField txtPort = new JFormattedTextField( new NumberFormatter() );
         final JTextField txtPort = new JTextField();
-        JButton btnGo = new JButton( "Go!" );
+        JButton btnGo = new JButton( "Connect" );
         btnGo.addActionListener( new ActionListener() {
             
             @Override
@@ -75,9 +75,13 @@ public class SocketTwoPane
                         {
                             try
                             {
-                                log.info( "Connecting to {}:{}.", host, port );
+                                String connectingMsg = "Connecting to " + host + ":" + port + ".";
+                                taTop.append( connectingMsg + '\n' );
+                                log.info( connectingMsg );
                                 final Socket socket = new Socket( host, port );
-                                log.info( "Connected socket={}.", socket );
+                                String connectedMsg = "Connected socket=" + socket + ".";
+                                log.info( connectedMsg );
+                                taTop.append( connectedMsg + '\n' );
                                 taBot.addKeyListener( new KeyAdapter() {
 
                                     @Override
@@ -100,8 +104,13 @@ public class SocketTwoPane
                                 while ( ( numRead = sin.read( buf ) ) != -1 )
                                 {
                                     String dump = HexDump.prettyDump( buf, numRead );
+                                    log.info( "Recv=0x{}/{}:\n{}", HexDump.numToHex( numRead ), numRead, dump );
                                     taTop.append( dump + '\n' );
                                 }
+                                String disconnectMsg = "Socket closed by remote peer (read returned=" + numRead + ")=" + socket + ".";
+                                taTop.append( disconnectMsg + '\n' );
+                                log.info( disconnectMsg );
+                                socket.close();
                             }
                             catch ( Exception e )
                             {
