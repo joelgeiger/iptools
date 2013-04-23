@@ -8,27 +8,35 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
 import javax.net.ServerSocketFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sibilantsolutions.iptools.event.ConnectEvent;
+import com.sibilantsolutions.iptools.event.ConnectionListenerI;
 import com.sibilantsolutions.iptools.event.ReceiveEvt;
 import com.sibilantsolutions.iptools.event.SocketListenerI;
 import com.sibilantsolutions.iptools.gui.SocketTwoPane;
 import com.sibilantsolutions.iptools.layer.app.http.HttpReceiver;
+import com.sibilantsolutions.iptools.redir.Redirector;
 import com.sibilantsolutions.iptools.util.HexDump;
 
 public class IpToolsTester
 {
     final static private Logger log = LoggerFactory.getLogger( IpToolsTester.class );
 
+    static private String[] args;
+    
     static public void main( String[] args )
     {
         long startMs = System.currentTimeMillis();
 
         log.info( "main() started." );
+        
+        IpToolsTester.args = args;
 
         new SocketTwoPane().buildUi();
         new IpToolsTester().test();
@@ -45,7 +53,7 @@ public class IpToolsTester
         try
         {
             InetAddress loopback = InetAddress.getByName( null );
-            ServerSocket serverSocket = ssf.createServerSocket( 8888, 50, loopback );
+            final ServerSocket serverSocket = ssf.createServerSocket( 8888, 50, loopback );
             log.info( "Created server socket={}.", serverSocket );
             boolean isRunning = true;
             while ( isRunning )
@@ -54,22 +62,22 @@ public class IpToolsTester
                 final Socket socket = serverSocket.accept();
                 log.info( "Accepted connection={} from server={}.", socket, serverSocket );
                 Runnable r = new Runnable() {
-                    
+
                     @Override
                     public void run()
                     {
-                        log.info( "Started receiver thread for socket={}.", socket );
-                        try
-                        {
-                            readLoop( socket );
-                        }
-                        catch ( IOException e )
-                        {
-                            log.error( "Trouble in read loop:", new Exception( e ) );
-                        }
-                        log.info( "Finished receiver thread for socket={}.", socket );
+                        log.info( "Started onConnect thread for socket={}.", socket );
+
+                        ConnectionListenerI connListener = httpConnectionListener();
+                        //ConnectionListenerI connListener = redirConnectionListener();
+                        connListener.onConnect( new ConnectEvent( socket, serverSocket ) );
+
+                        log.info( "Finished onConnect thread for socket={}.", socket );
                     }
                 };
+
+                    //Start the onConnect thread immediately after accept, so that the server
+                    //can accept another connection right away.
                 new Thread( r ).start();
             }
         }
@@ -79,38 +87,116 @@ public class IpToolsTester
         }
     }
 
-    private void readLoop( Socket socket ) throws IOException
+    private ConnectionListenerI httpConnectionListener()
     {
-//        Charset cs = Charset.forName( "US-ASCII" );
-        
-        SocketListenerI listener = new HttpReceiver();
-        InputStream ins = socket.getInputStream();
-//        OutputStream outs = socket.getOutputStream();
-//                OutputStreamWriter ow = new OutputStreamWriter( outs );
-//        String greeting = "Hi there!\n";
-//        byte[] outBytes = greeting.getBytes( cs );
-//        log.info( "Send={}: \n{}", outBytes.length, simpleDump( outBytes ) );
-//        outs.write( outBytes );
-//        outs.flush();
-//                ow.write( greeting );
-//                ow.flush();
-        byte[] b = new byte[1024];
-        int numRead;
-        while ( ( numRead = ins.read( b ) ) >= 0 )
+        return new ConnectionListenerI() {
+
+            @Override
+            public void onConnect( ConnectEvent evt )
+            {
+                final Socket socket = evt.getSocket();
+
+                Runnable r = new Runnable() {
+
+                    @Override
+                    public void run()
+                    {
+                        log.info( "Started receiver thread for socket={}.", socket );
+                        SocketListenerI listener = new HttpReceiver();
+                        readLoop( socket, listener );
+                        log.info( "Finished receiver thread for socket={}.", socket );
+                    }
+                };
+                new Thread( r ).start();
+            }
+        };
+    }
+
+    private ConnectionListenerI redirConnectionListener()
+    {
+        Redirector redirector = new Redirector();
+        redirector.setTargetHost( args[0] );
+        redirector.setTargetPort( Integer.parseInt( args[1] ) );
+
+        return redirector;
+    }
+
+    static public void readLoop( Socket socket, SocketListenerI listener )
+    {
+        log.info( "Running read loop for socket={}.", socket );
+
+        InputStream ins;
+        try
         {
-            log.info( "Read=0x{}/{}: \n{}", HexDump.numToHex( numRead ), numRead, prettyDump( b, 0, numRead ) );
+            ins = socket.getInputStream();
+        }
+        catch ( IOException e )
+        {
+            // TODO Auto-generated catch block
+            throw new UnsupportedOperationException( "OGTE TODO!", e );
+        }
+
+        byte[] b = new byte[1024];
+        boolean isRunning = true;
+        while ( isRunning )
+        {
+            int numRead = -1304231933;
+            isRunning = false;
+
             try
             {
-                listener.onReceive( new ReceiveEvt( b, numRead, socket ) );
+                numRead = ins.read( b );
+                isRunning = ( numRead >= 0 );
+                
+                if ( ! isRunning )
+                {
+                    log.info( "Socket closed intentionally by remote host (read returned={})={}.", numRead, socket );
+                }
             }
-            catch ( Exception e )
+            catch ( SocketException e )
             {
-                log.error( "Trouble processing data:", new Exception( e ) );
-                //TODO: Send a 503.
+                if ( socket.isClosed() )
+                {
+                    log.info( "Socket read unblocked after being closed={}.", socket );
+                }
+                else
+                {
+                    // TODO Auto-generated catch block
+                    throw new UnsupportedOperationException( "OGTE TODO!", e );
+                }
+            }
+            catch ( IOException e )
+            {
+                // TODO Auto-generated catch block
+                throw new UnsupportedOperationException( "OGTE TODO!", e );
+            }
+            
+            if ( isRunning )
+            {
+                log.info( "Read=0x{}/{}: \n{}", HexDump.numToHex( numRead ), numRead, prettyDump( b, 0, numRead ) );
+                try
+                {
+                    listener.onReceive( new ReceiveEvt( b, numRead, socket ) );
+                }
+                catch ( Exception e )
+                {
+                    log.error( "Trouble processing data:", new Exception( e ) );
+                    //TODO: Send a 503.
+                }
             }
         }
-        log.info( "Socket closed by remote peer (read returned={})={}.", numRead, socket );
-        socket.close();
+
+        try
+        {
+            socket.close();
+        }
+        catch ( IOException e )
+        {
+            // TODO Auto-generated catch block
+            throw new UnsupportedOperationException( "OGTE TODO!", e );
+        }
+        
+        log.info( "Finished read loop for socket={}.", socket );
     }
 
 }
