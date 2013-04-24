@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sibilantsolutions.iptools.event.ReceiveEvt;
 import com.sibilantsolutions.iptools.event.SocketListenerI;
-import com.sibilantsolutions.iptools.test.IpToolsTester;
 import com.sibilantsolutions.iptools.util.Socker;
 
 public class RedirPeer implements Runnable
@@ -58,6 +57,8 @@ public class RedirPeer implements Runnable
     @Override
     public void run()
     {
+        log.info( "Running thread for peer={}.", socket );
+        
         SocketListenerI listener = new SocketListenerI() {
 
             @Override
@@ -67,10 +68,12 @@ public class RedirPeer implements Runnable
             }
         };
 
-        IpToolsTester.readLoop( socket, listener );
+        Socker.readLoop( socket, listener );
 
         log.info( "Closing peer (if open)." );
         peer.close();
+        
+        log.info( "Finished thread for peer={}.", socket );
     }
 
     public void send( byte[] data, int offset, int length )
