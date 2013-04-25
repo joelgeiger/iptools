@@ -1,10 +1,12 @@
 /*
 package com.sibilantsolutions.iptools.test;
 
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Properties;
 
 import javax.net.ServerSocketFactory;
 
@@ -16,6 +18,7 @@ import com.sibilantsolutions.iptools.event.ConnectionListenerI;
 import com.sibilantsolutions.iptools.event.SocketListenerI;
 import com.sibilantsolutions.iptools.gui.SocketTwoPane;
 import com.sibilantsolutions.iptools.layer.app.http.HttpReceiver;
+import com.sibilantsolutions.iptools.layer.app.irc.IrcClient;
 import com.sibilantsolutions.iptools.redir.Redirector;
 import com.sibilantsolutions.iptools.util.Socker;
 
@@ -35,10 +38,26 @@ public class IpToolsTester
 
         new SocketTwoPane().buildUi();
         new IpToolsTester().test();
+        //new IpToolsTester().ircTest();
 
         long endMs = System.currentTimeMillis();
 
         log.info( "main() finished; duration={} ms.", endMs - startMs );
+    }
+
+    public void ircTest()
+    {
+        Properties properties = new Properties();
+        try
+        {
+            properties.load( new FileReader( args[0] ) );
+        }
+        catch ( IOException e )
+        {
+            // TODO Auto-generated catch block
+            throw new UnsupportedOperationException( "OGTE TODO!", e );
+        }
+        new IrcClient( properties );
     }
 
     private void test()
