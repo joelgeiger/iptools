@@ -8,6 +8,18 @@ public class HexDumpTest
 {
 
     @Test
+    public void testComputeLines()
+    {
+        assertEquals( 1, HexDump.computeLines( 0 ) );
+        assertEquals( 1, HexDump.computeLines( 1 ) );
+        assertEquals( 1, HexDump.computeLines( 16 ) );
+        assertEquals( 2, HexDump.computeLines( 17 ) );
+        assertEquals( 2, HexDump.computeLines( 32 ) );
+        assertEquals( 3, HexDump.computeLines( 33 ) );
+        assertEquals( 256, HexDump.computeLines( 4096 ) );
+    }
+
+    @Test
     public void testNumToHex()
     {
         assertEquals(       "00", HexDump.numToHex( 0 ) );
@@ -58,13 +70,22 @@ public class HexDumpTest
         assertEquals( "      -0 -1 -2 -3 -4 -5 -6 -7 | -8 -9 -A -B -C -D -E -F || 0x0010/16\n" +
                       "0000: 31 32 33 34 35 36 37 38 | 39 61 62 63 64 65 66 67 || 123456789abcdefg", s );
         assertEquals( s.length(), HexDump.computePrettyDumpLength( data.length ) );
-        
+
 
         data = new byte[] { '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h' };
         s = HexDump.prettyDump( data );
         assertEquals( "      -0 -1 -2 -3 -4 -5 -6 -7 | -8 -9 -A -B -C -D -E -F || 0x0011/17\n" +
                       "0000: 31 32 33 34 35 36 37 38 | 39 61 62 63 64 65 66 67 || 123456789abcdefg\n" +
                       "0010: 68                      |                         || h", s );
+        assertEquals( s.length(), HexDump.computePrettyDumpLength( data.length ) );
+
+
+        data = new byte[] { '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
+                            'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w' };
+        s = HexDump.prettyDump( data );
+        assertEquals( "      -0 -1 -2 -3 -4 -5 -6 -7 | -8 -9 -A -B -C -D -E -F || 0x0020/32\n" +
+                      "0000: 31 32 33 34 35 36 37 38 | 39 61 62 63 64 65 66 67 || 123456789abcdefg\n" +
+                      "0010: 68 69 6A 6B 6C 6D 6E 6F | 70 71 72 73 74 75 76 77 || hijklmnopqrstuvw", s );
         assertEquals( s.length(), HexDump.computePrettyDumpLength( data.length ) );
     }
 

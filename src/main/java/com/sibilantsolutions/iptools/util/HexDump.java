@@ -25,16 +25,24 @@ public abstract class HexDump
     
     private HexDump() {}    //Prevent instantiation.
 
-    /*package*/ static int computePrettyDumpLength( final int len )
+    /*package*/ static int computeLines( final int length )
     {
-        //int lines = Math.max( 1, len / 16 );
         int lines;
-        if ( len <= BYTES_PER_LINE )
+        if ( length < BYTES_PER_LINE )
             lines = 1;
         else
         {
-            lines = len / BYTES_PER_LINE + 1;
+            lines = length / BYTES_PER_LINE;
+            
+            if ( length % BYTES_PER_LINE != 0 )
+                lines++;
         }
+        return lines;
+    }
+
+    /*package*/ static int computePrettyDumpLength( final int len )
+    {
+        int lines = computeLines( len );
         int remainder = len % 16;
         if ( len > 0 && remainder == 0 )    //Last line has exactly 16.
             remainder = 16;
@@ -129,14 +137,7 @@ public abstract class HexDump
     {
         StringBuilder buf = new StringBuilder( computePrettyDumpLength( length ) );
         
-        
-        int lines;
-        if ( length <= BYTES_PER_LINE )
-            lines = 1;
-        else
-        {
-            lines = length / BYTES_PER_LINE + 1;
-        }
+        int lines = computeLines( length );
 
         final String lengthInHex = numToHex( length );
         
