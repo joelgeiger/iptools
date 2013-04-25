@@ -129,6 +129,18 @@ public class Socker
     {
         log.info( "Send=0x{}/{}: \n{}", HexDump.numToHex( length ), length, prettyDump( buf, offset, length ) );
 
+        sendNoLog( buf, offset, length, socket );
+
+    }
+
+    static public void send( String s, Socket socket )
+    {
+        byte[] bytes = s.getBytes( HexDump.cs );
+        send( bytes, socket );
+    }
+
+    public static void sendNoLog( byte[] buf, int offset, int length, Socket socket )
+    {
         try
         {
             OutputStream os = socket.getOutputStream();
@@ -140,13 +152,6 @@ public class Socker
             // TODO Auto-generated catch block
             throw new UnsupportedOperationException( "OGTE TODO!", e );
         }
-
-    }
-
-    static public void send( String s, Socket socket )
-    {
-        byte[] bytes = s.getBytes( HexDump.cs );
-        send( bytes, socket );
     }
 
 }

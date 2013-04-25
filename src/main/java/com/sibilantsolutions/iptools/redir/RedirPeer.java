@@ -78,7 +78,7 @@ public class RedirPeer implements Runnable
 
     public void send( byte[] data, int offset, int length )
     {
-        Socker.send( data, offset, length, socket );
+        Socker.sendNoLog( data, offset, length, socket );
     }
 
 }
