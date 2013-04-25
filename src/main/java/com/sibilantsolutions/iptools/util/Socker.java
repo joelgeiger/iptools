@@ -96,7 +96,7 @@ public class Socker
         log.info( "Finished read loop for socket={}.", socket );
     }
 
-    static public void readLoopThread( final Socket socket, final SocketListenerI listener )
+    static public Thread readLoopThread( final Socket socket, final SocketListenerI listener )
     {
         Runnable r = new Runnable() {
 
@@ -112,7 +112,9 @@ public class Socker
 
         };
 
-        new Thread( r ).start();
+        Thread thread = new Thread( r );
+        thread.start();
+        return thread;
     }
 
     static public void send( byte[] buf, Socket socket )
