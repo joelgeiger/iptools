@@ -121,6 +121,7 @@ public class IpToolsTester
         Redirector redirector = new Redirector();
         redirector.setTargetHost( args[0] );
         redirector.setTargetPort( Integer.parseInt( args[1] ) );
+        redirector.setTargetSsl( Boolean.parseBoolean( args[2] ) );
 
         return redirector;
     }
