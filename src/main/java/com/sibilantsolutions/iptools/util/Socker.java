@@ -33,7 +33,7 @@ public class Socker
             throw new UnsupportedOperationException( "OGTE TODO!", e );
         }
 
-        byte[] b = new byte[1024];
+        byte[] b = new byte[4096];
         boolean isRunning = true;
         while ( isRunning )
         {
