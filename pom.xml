@@ -66,5 +66,10 @@
     	<scope>runtime</scope>
     	<optional>true</optional>
     </dependency>
+    <dependency>
+    	<groupId>com.beust</groupId>
+    	<artifactId>jcommander</artifactId>
+    	<version>1.30</version>
+    </dependency>
   </dependencies>
 </project>

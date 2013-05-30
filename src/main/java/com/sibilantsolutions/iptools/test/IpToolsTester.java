@@ -13,36 +13,73 @@ import javax.net.ServerSocketFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sibilantsolutions.iptools.cli.CommandHttp;
+import com.sibilantsolutions.iptools.cli.CommandIrc;
+import com.sibilantsolutions.iptools.cli.CommandRedir;
+import com.sibilantsolutions.iptools.cli.CommandSocketTwoPane;
 import com.sibilantsolutions.iptools.event.ConnectEvent;
 import com.sibilantsolutions.iptools.event.ConnectionListenerI;
 import com.sibilantsolutions.iptools.event.SocketListenerI;
-import com.sibilantsolutions.iptools.gui.SocketTwoPane;
 import com.sibilantsolutions.iptools.layer.app.http.HttpReceiver;
 import com.sibilantsolutions.iptools.layer.app.irc.IrcClient;
 import com.sibilantsolutions.iptools.redir.Redirector;
 import com.sibilantsolutions.iptools.util.Socker;
+import com.beust.jcommander.JCommander;
 
 public class IpToolsTester
 {
     final static private Logger log = LoggerFactory.getLogger( IpToolsTester.class );
 
     static private String[] args;
-    
+
     static public void main( String[] args )
     {
         long startMs = System.currentTimeMillis();
 
         log.info( "main() started." );
-        
+
         IpToolsTester.args = args;
 
-        new SocketTwoPane().buildUi();
-        new IpToolsTester().test();
+//        new SocketTwoPane().buildUi();
+//        new IpToolsTester().test();
         //new IpToolsTester().ircTest();
+        //new IpToolsTester().optionsTest( args );
+        new IpToolsTester().jCommanderTest( args );
 
         long endMs = System.currentTimeMillis();
 
         log.info( "main() finished; duration={} ms.", endMs - startMs );
+    }
+
+    private void jCommanderTest( String[] args )
+    {
+        JCommander jc = new JCommander();
+
+        jc.addCommand( CommandIrc.COMMAND_NAME, CommandIrc.INSTANCE, CommandIrc.ALIASES );
+        jc.addCommand( CommandRedir.COMMAND_NAME, CommandRedir.INSTANCE, CommandRedir.ALIASES );
+        jc.addCommand( CommandSocketTwoPane.COMMAND_NAME, CommandSocketTwoPane.INSTANCE, CommandSocketTwoPane.ALIASES );
+        jc.addCommand( CommandHttp.COMMAND_NAME, CommandHttp.INSTANCE, CommandHttp.ALIASES );
+
+        jc.usage();
+
+        jc.parse( args );
+
+        String parsedCommand = jc.getParsedCommand();
+
+        switch ( parsedCommand )
+        {
+            case CommandIrc.COMMAND_NAME:
+                String filename = CommandIrc.INSTANCE.getFilename();
+                log.info( "IRC filename={}.", filename );
+                break;
+
+            case CommandRedir.COMMAND_NAME:
+                log.info( "Redir." );
+                break;
+
+            default:
+                throw new RuntimeException( "OGTE TODO" );
+        }
     }
 
     public void ircTest()
