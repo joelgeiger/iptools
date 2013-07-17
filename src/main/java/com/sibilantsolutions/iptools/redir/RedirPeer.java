@@ -57,8 +57,8 @@ public class RedirPeer implements Runnable
     @Override
     public void run()
     {
-        log.info( "Running thread for peer={}.", socket );
-        
+        log.info( "Running thread={} for peer={}.", Thread.currentThread(), socket );
+
         SocketListenerI listener = new SocketListenerI() {
 
             @Override
@@ -72,8 +72,8 @@ public class RedirPeer implements Runnable
 
         log.info( "Closing peer (if open)." );
         peer.close();
-        
-        log.info( "Finished thread for peer={}.", socket );
+
+        log.info( "Finished thread={} for peer={}.", Thread.currentThread(), socket );
     }
 
     public void send( byte[] data, int offset, int length )

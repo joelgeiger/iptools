@@ -29,7 +29,7 @@ import com.sibilantsolutions.iptools.util.StringEscape;
 public class SocketTwoPane
 {
     final static private Logger log = LoggerFactory.getLogger( SocketTwoPane.class );
-    
+
     private void doUi()
     {
         JFrame frame = new JFrame( "Socketry" );
@@ -38,7 +38,7 @@ public class SocketTwoPane
         //LayoutManager rootLM = new GridLayout( 2, 1 );
         //LayoutManager rootLM = new FlowLayout();
         //frame.getRootPane();
-        
+
         final int rows = 20;
         final int cols = 80;
         final JTextArea taTop = new JTextArea( rows, cols );
@@ -60,7 +60,7 @@ public class SocketTwoPane
         final JTextField txtPort = new JTextField();
         JButton btnGo = new JButton( "Connect" );
         btnGo.addActionListener( new ActionListener() {
-            
+
             @Override
             public void actionPerformed( ActionEvent evt )
             {
@@ -69,10 +69,12 @@ public class SocketTwoPane
                     final String host = txtHost.getText();
                     final int port = Integer.parseInt( txtPort.getText() );
                     Runnable r = new Runnable() {
-                        
+
                         @Override
                         public void run()
                         {
+                            log.info( "Started connecting thread={} for {}:{}.", Thread.currentThread(), host, port );
+
                             try
                             {
                                 String connectingMsg = "Connecting to " + host + ":" + port + ".";
@@ -94,6 +96,8 @@ public class SocketTwoPane
                                             taBot.setText( "" );
                                             String dump = HexDump.prettyDump( text );
                                             taTop.append( dump + '\n' );
+
+                                            //TODO: Need to do this outside of the AWT thread.
                                             Socker.send( text, socket );
                                         }
                                     }
@@ -116,9 +120,11 @@ public class SocketTwoPane
                             {
                                 throw new RuntimeException( e );
                             }
+
+                            log.info( "Finished connecting thread={} for {}:{}.", Thread.currentThread(), host, port );
                         }
                     };
-                    
+
                     new Thread( r ).start();
                 }
                 catch ( Exception e )
@@ -135,15 +141,15 @@ public class SocketTwoPane
         cp.setLayout( new BorderLayout() );
         cp.add( destPanel, BorderLayout.NORTH );
         cp.add( jsp, BorderLayout.SOUTH );
-        
+
         frame.pack();
         frame.setVisible( true );
     }
-    
+
     public void buildUi()
     {
         SwingUtilities.invokeLater( new Runnable() {
-            
+
             @Override
             public void run()
             {
@@ -151,5 +157,5 @@ public class SocketTwoPane
             }
         } );
     }
-    
+
 }

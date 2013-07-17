@@ -45,10 +45,9 @@ public class IpToolsTester
 
 //        new SocketTwoPane().buildUi();
 //        new IpToolsTester().test();
-        //new IpToolsTester().ircTest();
-        //new IpToolsTester().optionsTest( args );
-        new IpToolsTester().jCommanderTest( args );
-        new IpToolsTester().args4jTest( args );
+        new IpToolsTester().ircTest();
+//        new IpToolsTester().jCommanderTest( args );
+//        new IpToolsTester().args4jTest( args );
 
         long endMs = System.currentTimeMillis();
 
@@ -145,13 +144,13 @@ public class IpToolsTester
                     @Override
                     public void run()
                     {
-                        log.info( "Started onConnect thread for socket={}.", socket );
+                        log.info( "Started onConnect thread={} for socket={}.", Thread.currentThread(), socket );
 
                         ConnectionListenerI connListener = httpConnectionListener();
                         //ConnectionListenerI connListener = redirConnectionListener();
                         connListener.onConnect( new ConnectEvent( socket, serverSocket ) );
 
-                        log.info( "Finished onConnect thread for socket={}.", socket );
+                        log.info( "Finished onConnect thread={} for socket={}.", Thread.currentThread(), socket );
                     }
                 };
 

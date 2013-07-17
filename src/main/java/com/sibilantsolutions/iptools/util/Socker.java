@@ -44,7 +44,7 @@ public class Socker
             {
                 numRead = ins.read( b );
                 isRunning = ( numRead >= 0 );
-                
+
                 if ( ! isRunning )
                 {
                     log.info( "Socket closed intentionally by remote host (read returned={})={}.", numRead, socket );
@@ -67,7 +67,7 @@ public class Socker
                 // TODO Auto-generated catch block
                 throw new UnsupportedOperationException( "OGTE TODO!", e );
             }
-            
+
             if ( isRunning )
             {
                 log.info( "Read=0x{}/{}: \n{}", HexDump.numToHex( numRead ), numRead, prettyDump( b, 0, numRead ) );
@@ -103,11 +103,11 @@ public class Socker
             @Override
             public void run()
             {
-                log.info( "Started receiver thread for socket={}.", socket );
+                log.info( "Started receiver thread={} for socket={}.", Thread.currentThread(), socket );
 
                 readLoop( socket, listener );
 
-                log.info( "Finished receiver thread for socket={}.", socket );
+                log.info( "Finished receiver thread={} for socket={}.", Thread.currentThread(), socket );
             }
 
         };
