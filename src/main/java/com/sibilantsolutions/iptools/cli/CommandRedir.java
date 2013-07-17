@@ -12,6 +12,6 @@ public class CommandRedir
 
     public final static CommandRedir INSTANCE = new CommandRedir();
 
-    private CommandRedir() {}
+    public CommandRedir() {}
 
 }

@@ -10,9 +10,12 @@ import java.util.Properties;
 
 import javax.net.ServerSocketFactory;
 
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sibilantsolutions.iptools.cli.CommandAggregator;
 import com.sibilantsolutions.iptools.cli.CommandHttp;
 import com.sibilantsolutions.iptools.cli.CommandIrc;
 import com.sibilantsolutions.iptools.cli.CommandRedir;
@@ -45,10 +48,35 @@ public class IpToolsTester
         //new IpToolsTester().ircTest();
         //new IpToolsTester().optionsTest( args );
         new IpToolsTester().jCommanderTest( args );
+        new IpToolsTester().args4jTest( args );
 
         long endMs = System.currentTimeMillis();
 
         log.info( "main() finished; duration={} ms.", endMs - startMs );
+    }
+
+    private void args4jTest( String[] args )
+    {
+        CommandAggregator bean = new CommandAggregator();
+        CmdLineParser parser = new CmdLineParser( bean );
+        try
+        {
+            log.info( "Printing usage." );
+            parser.printUsage( System.out );
+            log.info( "Done printing usage." );
+            parser.parseArgument( args );
+            log.info( "Printing usage." );
+            parser.printSingleLineUsage( System.out );
+            log.info( "Done printing usage." );
+            log.info( "cmd={}", bean.cmd );
+            CommandIrc irc = (CommandIrc)bean.cmd;
+            log.info( "file={}", irc.getFilename() );
+        }
+        catch ( CmdLineException e )
+        {
+            // TODO Auto-generated catch block
+            throw new UnsupportedOperationException( "OGTE TODO!", e );
+        }
     }
 
     private void jCommanderTest( String[] args )

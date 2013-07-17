@@ -1,5 +1,7 @@
 package com.sibilantsolutions.iptools.cli;
 
+import org.kohsuke.args4j.Option;
+
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
@@ -13,9 +15,10 @@ public class CommandIrc
     public static final String[] ALIASES = {};
 
     @Parameter( names = { "-f", "--filename" }, required = true, description = "Where the params at?" )
-    private String filename;
+    @Option( name = "-f", aliases = { "--filename" } )
+    public String filename;
 
-    private CommandIrc() {}
+    public CommandIrc() {}
 
     public String getFilename()
     {
