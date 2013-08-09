@@ -110,8 +110,18 @@ public class LineParserBuffer implements SocketListenerI
 
                 String line = sBuf.toString();
                 log.debug( "The line={}", line );
+
                 //ircDataProc.onReceiveLine( line );
-                receiver.onReceive( new ReceiveEvt( line.getBytes(), evt.getSource() ) );
+                try
+                {
+                    receiver.onReceive( new ReceiveEvt( line.getBytes(), evt.getSource() ) );
+                }
+                catch ( Exception e )
+                {
+                        //If there is an exception while processing the line, then log it and
+                        //keep going in case there is more data in the buffer.
+                    log.error( "Trouble processing line=" + line, e );
+                }
             }
         }
 
