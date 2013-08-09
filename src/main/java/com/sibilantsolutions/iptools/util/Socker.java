@@ -7,6 +7,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.security.cert.Certificate;
+
+import javax.net.SocketFactory;
+import javax.net.ssl.HandshakeCompletedEvent;
+import javax.net.ssl.HandshakeCompletedListener;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +25,79 @@ import com.sibilantsolutions.iptools.event.SocketListenerI;
 public class Socker
 {
     final static private Logger log = LoggerFactory.getLogger( Socker.class );
+
+    static public Socket connect( String hostName, int hostPort )
+    {
+        return connect( hostName, hostPort, false );
+    }
+
+    static public Socket connect( String hostName, int hostPort, boolean isSsl )
+    {
+        SocketFactory socketFactory;
+        if ( isSsl )
+            socketFactory = SSLSocketFactory.getDefault();
+        else
+            socketFactory = SocketFactory.getDefault();
+
+
+        log.info( "Connecting to host={}:{} SSL={}.", hostName, hostPort, isSsl );
+
+        Socket socket;
+        try
+        {
+            socket = socketFactory.createSocket( hostName, hostPort );
+        }
+        catch ( Exception e )
+        {
+            // TODO Auto-generated catch block
+            throw new UnsupportedOperationException( "OGTE TODO!", e );
+        }
+
+        log.info( "Connected to host={}.", socket );
+
+        if ( isSsl )
+        {
+            SSLSocket ssl = (SSLSocket)socket;
+            ssl.addHandshakeCompletedListener( new HandshakeCompletedListener() {
+
+                @Override
+                public void handshakeCompleted( HandshakeCompletedEvent event )
+                {
+                    log.info( "Finished SSL handshake ({})={}.", event.getCipherSuite(), event.getSocket() );
+                    Certificate[] peerCertificates;
+                    try
+                    {
+                        peerCertificates = event.getPeerCertificates();
+                    }
+                    catch ( SSLPeerUnverifiedException e )
+                    {
+                        // TODO Auto-generated catch block
+                        throw new UnsupportedOperationException( "OGTE TODO!", e );
+                    }
+
+                    for ( int i = 0; i < peerCertificates.length; i++ )
+                    {
+                        Certificate certificate = peerCertificates[i];
+                        log.info( "Server cert {}/{}: {}", i + 1, peerCertificates.length, certificate );
+                    }
+                }
+            } );
+
+            log.info( "Starting SSL handshake={}.", ssl );
+
+            try
+            {
+                ssl.startHandshake();
+            }
+            catch ( IOException e )
+            {
+                // TODO Auto-generated catch block
+                throw new UnsupportedOperationException( "OGTE TODO!", e );
+            }
+        }
+
+        return socket;
+    }
 
     static public void readLoop( Socket socket, SocketListenerI listener )
     {

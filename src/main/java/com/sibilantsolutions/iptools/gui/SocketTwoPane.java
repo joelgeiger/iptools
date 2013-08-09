@@ -79,10 +79,8 @@ public class SocketTwoPane
                             {
                                 String connectingMsg = "Connecting to " + host + ":" + port + ".";
                                 taTop.append( connectingMsg + '\n' );
-                                log.info( connectingMsg );
-                                final Socket socket = new Socket( host, port );
+                                final Socket socket = Socker.connect( host, port );
                                 String connectedMsg = "Connected socket=" + socket + ".";
-                                log.info( connectedMsg );
                                 taTop.append( connectedMsg + '\n' );
                                 taBot.addKeyListener( new KeyAdapter() {
 
