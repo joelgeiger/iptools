@@ -44,8 +44,8 @@ public class IpToolsTester
         IpToolsTester.args = args;
 
 //        new SocketTwoPane().buildUi();
-//        new IpToolsTester().test();
-        new IpToolsTester().ircTest();
+        new IpToolsTester().test();
+//        new IpToolsTester().ircTest();
 //        new IpToolsTester().jCommanderTest( args );
 //        new IpToolsTester().args4jTest( args );
 
@@ -146,8 +146,8 @@ public class IpToolsTester
                     {
                         log.info( "Started onConnect thread={} for socket={}.", Thread.currentThread(), socket );
 
-                        ConnectionListenerI connListener = httpConnectionListener();
-                        //ConnectionListenerI connListener = redirConnectionListener();
+                        //ConnectionListenerI connListener = httpConnectionListener();
+                        ConnectionListenerI connListener = redirConnectionListener();
                         connListener.onConnect( new ConnectEvent( socket, serverSocket ) );
 
                         log.info( "Finished onConnect thread={} for socket={}.", Thread.currentThread(), socket );
