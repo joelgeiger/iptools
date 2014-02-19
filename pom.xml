@@ -10,8 +10,8 @@
   <properties>
   	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   	<mainClass>com.sibilantsolutions.iptools.test.IpToolsTester</mainClass>
-  	<slf4jVersion>1.7.5</slf4jVersion>
-    <logbackVersion>1.0.12</logbackVersion>
+  	<slf4jVersion>1.7.6</slf4jVersion>
+    <logbackVersion>1.1.1</logbackVersion>
   </properties>
   
   <build>
