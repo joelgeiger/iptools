@@ -1,9 +1,12 @@
 package com.sibilantsolutions.iptools.util;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
@@ -19,6 +22,7 @@ import sun.security.x509.CertificateIssuerName;
 import sun.security.x509.CertificateSerialNumber;
 import sun.security.x509.CertificateSubjectName;
 import sun.security.x509.CertificateValidity;
+import sun.security.x509.CertificateVersion;
 import sun.security.x509.CertificateX509Key;
 import sun.security.x509.X500Name;
 import sun.security.x509.X509CertImpl;
@@ -58,6 +62,17 @@ abstract public class CertDuplicator
 
         KeyPair keyPair = kpg.generateKeyPair();
 
+        AlgorithmId alg;
+        try
+        {
+            alg = new AlgorithmId( new ObjectIdentifier( cert.getSigAlgOID() ) );
+        }
+        catch ( IOException e1 )
+        {
+            // TODO Auto-generated catch block
+            throw new UnsupportedOperationException( "OGTE TODO!", e1 );
+        }
+
         X509CertInfo info = new X509CertInfo();
         try
         {
@@ -65,9 +80,13 @@ abstract public class CertDuplicator
             info.set( X509CertInfo.KEY, new CertificateX509Key( keyPair.getPublic() ) );
             info.set( X509CertInfo.VALIDITY, new CertificateValidity( cert.getNotBefore(), cert.getNotAfter() ) );
             info.set( X509CertInfo.ISSUER, new CertificateIssuerName( new X500Name( prince.getName() ) ) );
+
             info.set( X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(
-                    new AlgorithmId( new ObjectIdentifier( cert.getSigAlgOID() ) ) ) );
+                    alg ) );
             info.set( X509CertInfo.SERIAL_NUMBER, new CertificateSerialNumber( cert.getSerialNumber() ) );
+
+            info.set( X509CertInfo.VERSION, new CertificateVersion( cert.getVersion() - 1 ) );
+            //info.set( x509CertInfo.EXTENSIONS, cert.get)
         }
         catch ( CertificateException | IOException e )
         {
@@ -79,7 +98,16 @@ abstract public class CertDuplicator
 
         X509CertImpl newCert = new X509CertImpl( info );
 
-        String str = newCert.toString();
+        try
+        {
+            newCert.sign( keyPair.getPrivate(), alg.getName() );
+        }
+        catch ( InvalidKeyException | CertificateException | NoSuchAlgorithmException
+                | NoSuchProviderException | SignatureException e )
+        {
+            // TODO Auto-generated catch block
+            throw new UnsupportedOperationException( "OGTE TODO!", e );
+        }
 
         log.info( "Returning new cert={}.", newCert );
 
