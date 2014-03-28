@@ -28,6 +28,7 @@ import sun.security.x509.X500Name;
 import sun.security.x509.X509CertImpl;
 import sun.security.x509.X509CertInfo;
 
+@SuppressWarnings( "restriction" )
 abstract public class CertDuplicator
 {
 
