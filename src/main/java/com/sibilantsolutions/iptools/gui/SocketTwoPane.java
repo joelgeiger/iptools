@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sibilantsolutions.iptools.util.HexDump;
+import com.sibilantsolutions.iptools.util.HexUtils;
 import com.sibilantsolutions.iptools.util.Socker;
 import com.sibilantsolutions.iptools.util.StringEscape;
 
@@ -106,7 +107,7 @@ public class SocketTwoPane
                                 while ( ( numRead = sin.read( buf ) ) != -1 )
                                 {
                                     String dump = HexDump.prettyDump( buf, numRead );
-                                    log.info( "Recv=0x{}/{}:\n{}", HexDump.numToHex( numRead ), numRead, dump );
+                                    log.info( "Recv=0x{}/{}:\n{}", HexUtils.numToHex( numRead ), numRead, dump );
                                     taTop.append( dump + '\n' );
                                 }
                                 String disconnectMsg = "Socket closed by remote peer (read returned=" + numRead + ")=" + socket + ".";

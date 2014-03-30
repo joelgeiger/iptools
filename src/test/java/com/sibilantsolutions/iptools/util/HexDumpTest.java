@@ -19,20 +19,6 @@ public class HexDumpTest
         assertEquals( 256, HexDump.computeLines( 4096 ) );
     }
 
-    @Test
-    public void testNumToHex()
-    {
-        assertEquals(       "00", HexDump.numToHex( 0 ) );
-        assertEquals(       "0F", HexDump.numToHex( 15 ) );
-        assertEquals(       "10", HexDump.numToHex( 16 ) );
-        assertEquals(       "FF", HexDump.numToHex( 255 ) );
-        assertEquals(     "0100", HexDump.numToHex( 256 ) );
-        assertEquals(     "FFFF", HexDump.numToHex( 65535 ) );
-        assertEquals(   "010000", HexDump.numToHex( 65536 ) );
-        assertEquals(   "FFFFFF", HexDump.numToHex( 16777215 ) );
-        assertEquals( "FFFFFFFF", HexDump.numToHex( 4294967295L ) );
-    }
-    
 
     @Test
     public void testNumBytes()
@@ -47,7 +33,7 @@ public class HexDumpTest
         assertEquals( 3, HexDump.numBytes( 0xFFFFFF ) );
         //assertEquals( 4, HexDump.numBytes( 0xFFFFFFFF ) );
     }
-    
+
     @Test
     public void testPrettyDumpByteArray()
     {
@@ -93,7 +79,7 @@ public class HexDumpTest
     public void testPrettyDumpByteArray_empty()
     {
         String s = HexDump.prettyDump( new byte[0] );
-        assertEquals( "      -0 -1 -2 -3 -4 -5 -6 -7 | -8 -9 -A -B -C -D -E -F || 0x0000/0\n" + 
+        assertEquals( "      -0 -1 -2 -3 -4 -5 -6 -7 | -8 -9 -A -B -C -D -E -F || 0x0000/0\n" +
                       "0000:                         |                         || ", s );
         assertEquals( s.length(), HexDump.computePrettyDumpLength( 0 ) );
     }

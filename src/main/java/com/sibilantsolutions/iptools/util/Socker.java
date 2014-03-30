@@ -151,7 +151,7 @@ public class Socker
 
             if ( isRunning )
             {
-                log.info( "Read=0x{}/{}: \n{}", HexDump.numToHex( numRead ), numRead, prettyDump( b, 0, numRead ) );
+                log.info( "Read=0x{}/{}: \n{}", HexUtils.numToHex( numRead ), numRead, prettyDump( b, 0, numRead ) );
                 try
                 {
                     listener.onReceive( new ReceiveEvt( b, numRead, socket ) );
@@ -210,7 +210,7 @@ public class Socker
 
     static public void send( byte[] buf, int offset, int length, Socket socket )
     {
-        log.info( "Send=0x{}/{}: \n{}", HexDump.numToHex( length ), length, prettyDump( buf, offset, length ) );
+        log.info( "Send=0x{}/{}: \n{}", HexUtils.numToHex( length ), length, prettyDump( buf, offset, length ) );
 
         sendNoLog( buf, offset, length, socket );
 
