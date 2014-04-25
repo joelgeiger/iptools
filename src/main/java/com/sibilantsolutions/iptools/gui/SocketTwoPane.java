@@ -117,7 +117,7 @@ public class SocketTwoPane
                             }
                             catch ( Exception e )
                             {
-                                throw new RuntimeException( e );
+                                log.error( "Trouble:", new RuntimeException( e ) );
                             }
 
                             log.info( "Finished connecting thread={} for {}:{}.", Thread.currentThread(), host, port );

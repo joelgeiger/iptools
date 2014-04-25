@@ -23,6 +23,7 @@ import com.sibilantsolutions.iptools.cli.CommandSocketTwoPane;
 import com.sibilantsolutions.iptools.event.ConnectEvent;
 import com.sibilantsolutions.iptools.event.ConnectionListenerI;
 import com.sibilantsolutions.iptools.event.SocketListenerI;
+import com.sibilantsolutions.iptools.gui.SocketTwoPane;
 import com.sibilantsolutions.iptools.layer.app.http.HttpReceiver;
 import com.sibilantsolutions.iptools.layer.app.irc.IrcClient;
 import com.sibilantsolutions.iptools.redir.Redirector;
@@ -37,21 +38,28 @@ public class IpToolsTester
 
     static public void main( String[] args )
     {
-        long startMs = System.currentTimeMillis();
+        try
+        {
+            long startMs = System.currentTimeMillis();
 
-        log.info( "main() started." );
+            log.info( "main() started." );
 
-        IpToolsTester.args = args;
+            IpToolsTester.args = args;
 
-//        new SocketTwoPane().buildUi();
-        new IpToolsTester().test();
-//        new IpToolsTester().ircTest();
-//        new IpToolsTester().jCommanderTest( args );
-//        new IpToolsTester().args4jTest( args );
+            new SocketTwoPane().buildUi();
+            //new IpToolsTester().test();
+    //        new IpToolsTester().ircTest();
+    //        new IpToolsTester().jCommanderTest( args );
+    //        new IpToolsTester().args4jTest( args );
 
-        long endMs = System.currentTimeMillis();
+            long endMs = System.currentTimeMillis();
 
-        log.info( "main() finished; duration={} ms.", endMs - startMs );
+            log.info( "main() finished; duration={} ms.", endMs - startMs );
+        }
+        catch( Exception e )
+        {
+            log.error( "Trouble:", new RuntimeException( e ) );
+        }
     }
 
     private void args4jTest( String[] args )
