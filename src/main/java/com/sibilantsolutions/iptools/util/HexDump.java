@@ -164,6 +164,16 @@ public abstract class HexDump
         return prettyDump( bytes );
     }
 
+    static public String simpleDump( byte[] bytes )
+    {
+        return simpleDump( bytes, 0, bytes.length );
+    }
+
+    static public String simpleDump( byte[] bytes, int length )
+    {
+        return simpleDump( bytes, 0, length );
+    }
+
     static public String simpleDump( final byte[] bytes, final int offset, final int len )
     {
         char[] chars = new char[len * 3 - 1];
@@ -177,6 +187,12 @@ public abstract class HexDump
         }
 
         return new String( chars );
+    }
+
+    static public String simpleDump( String str )
+    {
+        byte[] bytes = str.getBytes( cs );
+        return simpleDump( bytes );
     }
 
 }
