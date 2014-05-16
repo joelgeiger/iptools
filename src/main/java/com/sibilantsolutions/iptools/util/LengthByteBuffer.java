@@ -1,7 +1,5 @@
 package com.sibilantsolutions.iptools.util;
 
-import java.nio.ByteBuffer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +18,9 @@ public class LengthByteBuffer implements SocketListenerI
     final private int lengthBytesOffset;
     final private SocketListenerI receiver;
 
-    final private ByteBuffer buf;
+    //final private ByteBuffer buf;
+    final private byte[] buf;
+    private int curOff;
 
     public LengthByteBuffer( int numLengthBytes, int lengthBytesOffset, SocketListenerI receiver )
     {
@@ -32,9 +32,80 @@ public class LengthByteBuffer implements SocketListenerI
             //exceed a certain length.  Certainly it doesn't make sense to allocate a 4 gigabyte
             //buffer if we are given 4 length bytes.
         int capacity = (int)( Math.pow( 256, this.numLengthBytes ) - 1 );
-        buf = ByteBuffer.allocate( capacity );
+        //buf = ByteBuffer.allocate( capacity );
+        buf = new byte[capacity];
     }
 
+    private void doReceiveArray( ReceiveEvt evt )
+    {
+        int rawOffset = evt.getOffset();
+        final int rawLength = evt.getLength();
+
+        log.debug( "======== doReceiveBuffer: offset={}, length={}.",
+                rawOffset, rawLength );
+
+        while ( rawOffset < rawLength )
+        {
+            int remaining = buf.length - curOff;
+
+            int len = Math.min( rawLength - rawOffset, remaining );
+
+            System.arraycopy( evt.getData(), rawOffset, buf, curOff, len );
+            curOff += len;
+            rawOffset += len;
+
+            boolean keepChecking = true;
+
+            for ( ; keepChecking; )
+            {
+                if ( curOff >= lengthBytesOffset + numLengthBytes )
+                {
+                    int packetLen = (int)Convert.toNum( buf, lengthBytesOffset, numLengthBytes );
+
+                    if ( curOff >= packetLen )
+                    {
+                        byte[] singlePacket = new byte[packetLen];
+
+                        System.arraycopy( buf, 0, singlePacket, 0, packetLen );
+
+                        ReceiveEvt packetEvt = new ReceiveEvt( singlePacket, evt.getSource() );
+
+                        try
+                        {
+                            receiver.onReceive( packetEvt );
+                        }
+                        catch ( Exception e )
+                        {
+                            throw new RuntimeException( "Trouble processing packet (exception follows data): \n" +
+                                    HexDump.prettyDump( singlePacket ), e );
+                        }
+
+                        if ( curOff > packetLen )
+                        {
+                            System.arraycopy( buf, packetLen, buf, 0, curOff - packetLen );
+                            curOff -= packetLen;
+                        }
+                        else
+                        {
+                            curOff = 0;
+                            keepChecking = false;
+                        }
+
+                    }
+                    else
+                    {
+                        keepChecking = false;
+                    }
+                }
+                else
+                {
+                    keepChecking = false;
+                }
+            }
+        }
+    }
+
+/**out
     private void doReceiveBuffer( ReceiveEvt evt )
     {
         int rawOffset = evt.getOffset();
@@ -132,11 +203,12 @@ public class LengthByteBuffer implements SocketListenerI
             log.debug( "Have a partial message; waiting for more data." );
         }
     }
-
+//*/
     @Override
     public void onReceive( ReceiveEvt evt )
     {
-        doReceiveBuffer( evt );
+        //doReceiveBuffer( evt );
+        doReceiveArray( evt );
     }
 
 }
