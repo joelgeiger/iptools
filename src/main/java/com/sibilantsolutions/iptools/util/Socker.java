@@ -22,6 +22,17 @@ import org.slf4j.LoggerFactory;
 import com.sibilantsolutions.iptools.event.ReceiveEvt;
 import com.sibilantsolutions.iptools.event.SocketListenerI;
 
+//TODO: Log thread duration (DurationLoggingRunnable).
+//TODO: Log connect duration.
+//TODO: Log SSL handshake duration.
+//TODO: Log connection duration when socket closes (or just use thread duration?).
+//TODO: Log socket id for send & recv.
+//TODO: Close socket if readLoop exits by exception (try/finally).
+//TODO: Handle connection reset gracefully, similar to a socket close.
+//TODO: Provide a single method to connect and start the read thread.
+//TODO: Set to decide whether an exception should close the socket or not; also apply setting to
+//      buffers (e.g. LengthByteBuffer).
+
 public class Socker
 {
     final static private Logger log = LoggerFactory.getLogger( Socker.class );
@@ -40,7 +51,7 @@ public class Socker
             socketFactory = SocketFactory.getDefault();
 
 
-        log.info( "Connecting to host={}:{} SSL={}.", hostName, hostPort, isSsl );
+        log.info( "Making TCP/IP connection to host={}:{} SSL={}.", hostName, hostPort, isSsl );
 
         Socket socket;
         try
@@ -53,7 +64,7 @@ public class Socker
             throw new UnsupportedOperationException( "OGTE TODO!", e );
         }
 
-        log.info( "Connected to host={}.", socket );
+        log.info( "Made TCP/IP connection to host={}.", socket );
 
         if ( isSsl )
         {
@@ -151,14 +162,16 @@ public class Socker
 
             if ( isRunning )
             {
-                log.info( "Read=0x{}/{}: \n{}", HexUtils.numToHex( numRead ), numRead, prettyDump( b, 0, numRead ) );
+                log.info( "Read=0x{}/{} {}: \n{}",
+                        HexUtils.numToHex( numRead ), numRead, socket, prettyDump( b, 0, numRead ) );
+
                 try
                 {
                     listener.onReceive( new ReceiveEvt( b, numRead, socket ) );
                 }
                 catch ( Exception e )
                 {
-                    log.error( "Trouble processing data:", new Exception( e ) );
+                    log.error( "Trouble processing data:", e );
                     //TODO: Send a 503.
                 }
             }
@@ -186,7 +199,14 @@ public class Socker
             {
                 log.info( "Started receiver thread={} for socket={}.", Thread.currentThread(), socket );
 
-                readLoop( socket, listener );
+                try
+                {
+                    readLoop( socket, listener );
+                }
+                catch ( Exception e )
+                {
+                    log.error( "Trouble running readLoop:", e );
+                }
 
                 log.info( "Finished receiver thread={} for socket={}.", Thread.currentThread(), socket );
             }
@@ -210,7 +230,8 @@ public class Socker
 
     static public void send( byte[] buf, int offset, int length, Socket socket )
     {
-        log.info( "Send=0x{}/{}: \n{}", HexUtils.numToHex( length ), length, prettyDump( buf, offset, length ) );
+        log.info( "Send=0x{}/{} {}: \n{}",
+                HexUtils.numToHex( length ), length, socket, prettyDump( buf, offset, length ) );
 
         sendNoLog( buf, offset, length, socket );
 
