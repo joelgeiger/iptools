@@ -1,39 +1,74 @@
 package com.sibilantsolutions.iptools.util;
 
+import java.nio.BufferOverflowException;
+import java.nio.ByteOrder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sibilantsolutions.iptools.event.ReceiveEvt;
 import com.sibilantsolutions.iptools.event.SocketListenerI;
 
-//TODO: Byte order
-//TODO: Length bytes inclusive or not
-
 public class LengthByteBuffer implements SocketListenerI
 {
 
     final static private Logger log = LoggerFactory.getLogger( LengthByteBuffer.class );
 
-    final private int numLengthBytes;
+    static public enum LengthByteType
+    {
+        /**
+         * The length bytes describe the length of the entire packet including the number of length
+         * bytes, any other header bytes, and the payload.
+         * <p>
+         * The length bytes will never be 0 even if there is no payload data; the length bytes
+         * will always account for themselves and any other fixed-length header bytes if any.
+         */
+        LENGTH_OF_ENTIRE_PACKET,
+
+        /**
+         * The length bytes describe the length of the payload only, and do not include the
+         * number of length bytes or the length of any other header bytes.
+         * <p>
+         * The payload length may be 0, indicating that the packet is only comprised of header bytes.
+         */
+        LENGTH_OF_PAYLOAD;
+    }
+
     final private int lengthBytesOffset;
+    final private int numLengthBytes;
+    final private LengthByteType lengthByteType;
+    final private ByteOrder byteOrder;
+    final private int padBytes;
     final private SocketListenerI receiver;
 
     //final private ByteBuffer buf;
     final private byte[] buf;
     private int curOff;
 
-    public LengthByteBuffer( int numLengthBytes, int lengthBytesOffset, SocketListenerI receiver )
+    /**
+     *
+     * @param lengthBytesOffset
+     * @param numLengthBytes
+     * @param lengthByteType
+     * @param byteOrder
+     * @param padBytes
+     *      Number of bytes after the length byte(s) and before the data; only used when
+     *      lengthByteType is LENGTH_OF_PAYLOAD.
+     * @param bufferCapacity
+     * @param receiver
+     */
+    public LengthByteBuffer( int lengthBytesOffset, int numLengthBytes, LengthByteType lengthByteType,
+            ByteOrder byteOrder, int padBytes, int bufferCapacity, SocketListenerI receiver )
     {
-        this.numLengthBytes = numLengthBytes;
         this.lengthBytesOffset = lengthBytesOffset;
+        this.numLengthBytes = numLengthBytes;
+        this.lengthByteType = lengthByteType;
+        this.byteOrder = byteOrder;
+        this.padBytes = padBytes;
         this.receiver = receiver;
 
-            //TODO: This may be too aggressive, if we know in advance that the protocol will not
-            //exceed a certain length.  Certainly it doesn't make sense to allocate a 4 gigabyte
-            //buffer if we are given 4 length bytes.
-        int capacity = (int)( Math.pow( 256, this.numLengthBytes ) - 1 );
-        //buf = ByteBuffer.allocate( capacity );
-        buf = new byte[capacity];
+        //buf = ByteBuffer.allocate( bufferCapacity );
+        buf = new byte[bufferCapacity];
     }
 
     private void doReceiveArray( ReceiveEvt evt )
@@ -50,6 +85,11 @@ public class LengthByteBuffer implements SocketListenerI
 
             int len = Math.min( rawLength - rawOffset, remaining );
 
+            if ( len == 0 )
+            {
+                throw new BufferOverflowException();
+            }
+
             System.arraycopy( evt.getData(), rawOffset, buf, curOff, len );
             curOff += len;
             rawOffset += len;
@@ -58,27 +98,48 @@ public class LengthByteBuffer implements SocketListenerI
 
             for ( ; keepChecking; )
             {
-                if ( curOff >= lengthBytesOffset + numLengthBytes )
+                final int minNeeded;
+
+                switch ( lengthByteType )
                 {
-                    int packetLen = (int)Convert.toNum( buf, lengthBytesOffset, numLengthBytes );
+                    case LENGTH_OF_ENTIRE_PACKET:
+                        minNeeded = lengthBytesOffset + numLengthBytes;
+                        break;
+
+                    case LENGTH_OF_PAYLOAD:
+                        minNeeded = lengthBytesOffset + numLengthBytes + padBytes;
+                        break;
+
+                    default:
+                        throw new RuntimeException( "Unexpected lengthByteType=" + lengthByteType );
+                }
+
+                if ( curOff >= minNeeded )
+                {
+                    final int lengthBytesVal =
+                            (int)Convert.toNum( buf, lengthBytesOffset, numLengthBytes, byteOrder );
+
+                    final int packetLen;
+
+                    switch ( lengthByteType )
+                    {
+                        case LENGTH_OF_ENTIRE_PACKET:
+                            packetLen = lengthBytesVal;
+                            break;
+
+                        case LENGTH_OF_PAYLOAD:
+                            packetLen = minNeeded + lengthBytesVal;
+                            break;
+
+                        default:
+                            throw new RuntimeException( "Unexpected lengthByteType=" + lengthByteType );
+                    }
 
                     if ( curOff >= packetLen )
                     {
                         byte[] singlePacket = new byte[packetLen];
 
                         System.arraycopy( buf, 0, singlePacket, 0, packetLen );
-
-                        ReceiveEvt packetEvt = new ReceiveEvt( singlePacket, evt.getSource() );
-
-                        try
-                        {
-                            receiver.onReceive( packetEvt );
-                        }
-                        catch ( Exception e )
-                        {
-                            throw new RuntimeException( "Trouble processing packet (exception follows data): \n" +
-                                    HexDump.prettyDump( singlePacket ), e );
-                        }
 
                         if ( curOff > packetLen )
                         {
@@ -91,18 +152,42 @@ public class LengthByteBuffer implements SocketListenerI
                             keepChecking = false;
                         }
 
+                        ReceiveEvt packetEvt = new ReceiveEvt( singlePacket, evt.getSource() );
+
+                        log.debug( "Firing single packet to receiver: \n{}",
+                                HexDumpDeferred.prettyDump( singlePacket ) );
+
+                        try
+                        {
+                            receiver.onReceive( packetEvt );
+                        }
+                        catch ( Exception e )
+                        {
+                            //throw new RuntimeException( "Trouble processing packet (exception follows data): \n" +
+                            //        HexDump.prettyDump( singlePacket ), e );
+                            log.error( "Trouble processing packet (exception follows data): \n" +
+                                    HexDump.prettyDump( singlePacket ), e );
+                        }
                     }
                     else
                     {
+                        log.debug( "Received length bytes, but not all data yet ({} of {} bytes).",
+                                curOff, packetLen );
                         keepChecking = false;
                     }
                 }
                 else
                 {
+                    log.debug( "Received data, but not length bytes yet ({} bytes).", curOff );
                     keepChecking = false;
                 }
             }
         }
+
+//        if ( curOff != 0 )
+//        {
+//            log.debug( "Have a partial message; waiting for more data." );
+//        }
     }
 
 /**out

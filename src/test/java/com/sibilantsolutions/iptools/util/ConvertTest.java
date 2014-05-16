@@ -2,6 +2,8 @@ package com.sibilantsolutions.iptools.util;
 
 import static org.junit.Assert.assertEquals;
 
+import java.nio.ByteOrder;
+
 import org.junit.Test;
 
 public class ConvertTest
@@ -26,6 +28,10 @@ public class ConvertTest
 
         assertEquals( 18, Convert.toNum( new byte[]{ 0, 0, (byte)0x12, (byte)0x34, 0, 0 }, 2, 1 ) );
         assertEquals( 4660, Convert.toNum( new byte[]{ 0, 0, (byte)0x12, (byte)0x34, 0, 0 }, 2, 2 ) );
+
+
+        assertEquals( 18, Convert.toNum( new byte[]{ 0, 0, (byte)0x12, (byte)0x34, 0, 0 }, 2, 1, ByteOrder.LITTLE_ENDIAN ) );
+        assertEquals( 13330, Convert.toNum( new byte[]{ 0, 0, (byte)0x12, (byte)0x34, 0, 0 }, 2, 2, ByteOrder.LITTLE_ENDIAN ) );
     }
 
 }
