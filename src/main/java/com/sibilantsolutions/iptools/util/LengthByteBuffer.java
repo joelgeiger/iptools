@@ -94,9 +94,9 @@ public class LengthByteBuffer implements SocketListenerI
             curOff += len;
             rawOffset += len;
 
-            boolean keepChecking = true;
+            int numFired = 0;
 
-            for ( ; keepChecking; )
+            for ( boolean keepChecking = true; keepChecking; numFired++)
             {
                 final int minNeeded;
 
@@ -154,8 +154,14 @@ public class LengthByteBuffer implements SocketListenerI
 
                         ReceiveEvt packetEvt = new ReceiveEvt( singlePacket, evt.getSource() );
 
-                        log.debug( "Firing single packet to receiver: \n{}",
-                                HexDumpDeferred.prettyDump( singlePacket ) );
+                            //Log the single packet, but only if there was more than one in the receive.
+                            //The receive was already logged so we don't need to log again for the
+                            //normal case of having received a single complete packet.
+                        if ( keepChecking || numFired > 0 )
+                        {
+                            log.debug( "Firing single packet to receiver: \n{}",
+                                    HexDumpDeferred.prettyDump( singlePacket ) );
+                        }
 
                         try
                         {
