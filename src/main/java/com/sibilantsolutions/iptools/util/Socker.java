@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import com.sibilantsolutions.iptools.event.ReceiveEvt;
 import com.sibilantsolutions.iptools.event.SocketListenerI;
 
-//TODO: Log thread duration (DurationLoggingRunnable).
 //TODO: Log connect duration.
 //TODO: Log SSL handshake duration.
 //TODO: Log connection duration when socket closes (or just use thread duration?).
@@ -192,26 +191,14 @@ public class Socker
 
     static public Thread readLoopThread( final Socket socket, final SocketListenerI listener )
     {
-        Runnable r = new Runnable() {
+        Runnable r = new DurationLoggingRunnable( new Runnable() {
 
             @Override
             public void run()
             {
-                log.info( "Started receiver thread={} for socket={}.", Thread.currentThread(), socket );
-
-                try
-                {
-                    readLoop( socket, listener );
-                }
-                catch ( Exception e )
-                {
-                    log.error( "Trouble running readLoop:", e );
-                }
-
-                log.info( "Finished receiver thread={} for socket={}.", Thread.currentThread(), socket );
+                readLoop( socket, listener );
             }
-
-        };
+        }, "socket=" + socket );
 
         Thread thread = new Thread( r );
         thread.start();
