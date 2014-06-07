@@ -1,10 +1,10 @@
 package com.sibilantsolutions.iptools.util;
 
-import static com.sibilantsolutions.iptools.util.HexDumpDeferred.prettyDump;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.security.cert.Certificate;
@@ -162,7 +162,7 @@ public class Socker
             if ( isRunning )
             {
                 log.info( "Read=0x{}/{} {}: \n{}",
-                        HexUtils.numToHex( numRead ), numRead, socket, prettyDump( b, 0, numRead ) );
+                        HexUtils.numToHex( numRead ), numRead, socket, HexDumpDeferred.prettyDump( b, 0, numRead ) );
 
                 try
                 {
@@ -218,9 +218,26 @@ public class Socker
     static public void send( byte[] buf, int offset, int length, Socket socket )
     {
         log.info( "Send=0x{}/{} {}: \n{}",
-                HexUtils.numToHex( length ), length, socket, prettyDump( buf, offset, length ) );
+                HexUtils.numToHex( length ), length, socket, HexDumpDeferred.prettyDump( buf, offset, length ) );
 
         sendNoLog( buf, offset, length, socket );
+
+    }
+
+    static public void send( DatagramPacket packet, DatagramSocket socket )
+    {
+        int length = packet.getLength();
+        byte[] buf = packet.getData();
+        int offset = packet.getOffset();
+
+        String sockID = socket.getLocalSocketAddress().toString();
+        String destID = packet.getSocketAddress().toString();
+
+        log.info( "Send UDP=0x{}/{} {} -> {}: \n{}",
+                HexUtils.numToHex( length ), length, sockID, destID,
+                HexDumpDeferred.prettyDump( buf, offset, length ) );
+
+        sendNoLog( packet, socket );
 
     }
 
@@ -237,6 +254,19 @@ public class Socker
             OutputStream os = socket.getOutputStream();
             os.write( buf, offset, length );
             os.flush();
+        }
+        catch ( IOException e )
+        {
+            // TODO Auto-generated catch block
+            throw new UnsupportedOperationException( "OGTE TODO!", e );
+        }
+    }
+
+    public static void sendNoLog( DatagramPacket packet, DatagramSocket socket )
+    {
+        try
+        {
+            socket.send( packet );
         }
         catch ( IOException e )
         {
