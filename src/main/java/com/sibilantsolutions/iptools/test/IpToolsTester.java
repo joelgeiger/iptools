@@ -1,12 +1,9 @@
-/*
 package com.sibilantsolutions.iptools.test;
 
-import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Properties;
 
 import javax.net.ServerSocketFactory;
 
@@ -15,6 +12,7 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.beust.jcommander.JCommander;
 import com.sibilantsolutions.iptools.cli.CommandAggregator;
 import com.sibilantsolutions.iptools.cli.CommandHttp;
 import com.sibilantsolutions.iptools.cli.CommandIrc;
@@ -22,13 +20,8 @@ import com.sibilantsolutions.iptools.cli.CommandRedir;
 import com.sibilantsolutions.iptools.cli.CommandSocketTwoPane;
 import com.sibilantsolutions.iptools.event.ConnectEvent;
 import com.sibilantsolutions.iptools.event.ConnectionListenerI;
-import com.sibilantsolutions.iptools.event.SocketListenerI;
 import com.sibilantsolutions.iptools.gui.SocketTwoPane;
-import com.sibilantsolutions.iptools.layer.app.http.HttpReceiver;
-import com.sibilantsolutions.iptools.layer.app.irc.IrcClient;
 import com.sibilantsolutions.iptools.redir.Redirector;
-import com.sibilantsolutions.iptools.util.Socker;
-import com.beust.jcommander.JCommander;
 
 public class IpToolsTester
 {
@@ -117,21 +110,6 @@ public class IpToolsTester
         }
     }
 
-    public void ircTest()
-    {
-        Properties properties = new Properties();
-        try
-        {
-            properties.load( new FileReader( args[0] ) );
-        }
-        catch ( IOException e )
-        {
-            // TODO Auto-generated catch block
-            throw new UnsupportedOperationException( "OGTE TODO!", e );
-        }
-        new IrcClient( properties );
-    }
-
     private void test()
     {
         ServerSocketFactory ssf = ServerSocketFactory.getDefault();
@@ -173,21 +151,6 @@ public class IpToolsTester
         }
     }
 
-    private ConnectionListenerI httpConnectionListener()
-    {
-        return new ConnectionListenerI() {
-
-            @Override
-            public void onConnect( ConnectEvent evt )
-            {
-                final Socket socket = evt.getSocket();
-
-                SocketListenerI listener = new HttpReceiver();
-                Socker.readLoopThread( socket, listener );
-            }
-        };
-    }
-
     private ConnectionListenerI redirConnectionListener()
     {
         Redirector redirector = new Redirector();
@@ -199,4 +162,3 @@ public class IpToolsTester
     }
 
 }
-*/
