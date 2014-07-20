@@ -200,7 +200,7 @@ public class Socker
             }
         }, "socket=" + socket );
 
-        Thread thread = new Thread( r );
+        Thread thread = new Thread( r, socket.toString() );
         thread.start();
         return thread;
     }
