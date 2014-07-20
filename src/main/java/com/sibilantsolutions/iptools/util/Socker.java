@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.sibilantsolutions.iptools.event.ReceiveEvt;
 import com.sibilantsolutions.iptools.event.SocketListenerI;
 
+//TODO: Implement SocketListenerI.onDisconnect().
 //TODO: Log connect duration.
 //TODO: Log SSL handshake duration.
 //TODO: Log connection duration when socket closes (or just use thread duration?).
