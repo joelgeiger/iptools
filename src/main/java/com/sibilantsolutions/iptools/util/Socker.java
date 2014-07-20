@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.security.cert.Certificate;
@@ -36,12 +37,12 @@ public class Socker
 {
     final static private Logger log = LoggerFactory.getLogger( Socker.class );
 
-    static public Socket connect( String hostName, int hostPort )
+    static public Socket connect( InetSocketAddress socketAddress )
     {
-        return connect( hostName, hostPort, false );
+        return connect( socketAddress, false );
     }
 
-    static public Socket connect( String hostName, int hostPort, boolean isSsl )
+    static public Socket connect( InetSocketAddress socketAddress, boolean isSsl )
     {
         SocketFactory socketFactory;
         if ( isSsl )
@@ -50,12 +51,12 @@ public class Socker
             socketFactory = SocketFactory.getDefault();
 
 
-        log.info( "Making TCP/IP connection to host={}:{} SSL={}.", hostName, hostPort, isSsl );
+        log.info( "Making TCP/IP connection to host={} SSL={}.", socketAddress, isSsl );
 
         Socket socket;
         try
         {
-            socket = socketFactory.createSocket( hostName, hostPort );
+            socket = socketFactory.createSocket( socketAddress.getAddress(), socketAddress.getPort() );
         }
         catch ( Exception e )
         {
@@ -107,6 +108,18 @@ public class Socker
         }
 
         return socket;
+    }
+
+    static public Socket connect( String hostName, int hostPort )
+    {
+        return connect( hostName, hostPort, false );
+    }
+
+    static public Socket connect( String hostName, int hostPort, boolean isSsl )
+    {
+        InetSocketAddress inetSocketAddress = new InetSocketAddress( hostName, hostPort );
+
+        return connect( inetSocketAddress, isSsl );
     }
 
     static public void readLoop( Socket socket, SocketListenerI listener )
