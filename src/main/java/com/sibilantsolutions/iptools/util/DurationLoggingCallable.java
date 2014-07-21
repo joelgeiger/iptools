@@ -2,27 +2,28 @@ package com.sibilantsolutions.iptools.util;
 
 import java.text.Format;
 import java.text.NumberFormat;
+import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DurationLoggingRunnable implements Runnable
+public class DurationLoggingCallable<V> implements Callable<V>
 {
-    final static private Logger log = LoggerFactory.getLogger( DurationLoggingRunnable.class );
+    final static private Logger log = LoggerFactory.getLogger( DurationLoggingCallable.class );
 
-    private Runnable target;
+    private Callable<V> target;
     private String debugId;
 
     static private Format format = NumberFormat.getInstance();
 
-    public DurationLoggingRunnable( Runnable target, String debugId )
+    public DurationLoggingCallable( Callable<V> target, String debugId )
     {
         this.target = target;
         this.debugId = debugId;
     }
 
     @Override
-    public void run()
+    public V call() throws Exception
     {
         if ( debugId != null )
             log.info( "Starting execution in thread={} for {}.", Thread.currentThread(), debugId );
@@ -31,9 +32,11 @@ public class DurationLoggingRunnable implements Runnable
 
         final long startMs = System.currentTimeMillis();
 
+        V ret;
+
         try
         {
-            target.run();
+            ret = target.call();
         }
         catch ( Exception e )
         {
@@ -42,7 +45,7 @@ public class DurationLoggingRunnable implements Runnable
             else
                 log.error( "Trouble running thread=" + Thread.currentThread() + ":", e );
 
-            throw new RuntimeException( e );
+            throw e;
         }
 
         long endMs = System.currentTimeMillis();
@@ -59,6 +62,8 @@ public class DurationLoggingRunnable implements Runnable
             log.info( "Finished execution in thread={}, duration={} ms.",
                     Thread.currentThread(), format.format( duration ) );
         }
+
+        return ret;
     }
 
 }
