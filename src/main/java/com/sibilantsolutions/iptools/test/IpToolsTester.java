@@ -22,6 +22,7 @@ import com.sibilantsolutions.iptools.event.ConnectEvent;
 import com.sibilantsolutions.iptools.event.ConnectionListenerI;
 import com.sibilantsolutions.iptools.gui.SocketTwoPane;
 import com.sibilantsolutions.iptools.redir.Redirector;
+import com.sibilantsolutions.iptools.util.DurationLoggingRunnable;
 
 public class IpToolsTester
 {
@@ -29,25 +30,30 @@ public class IpToolsTester
 
     static private String[] args;
 
-    static public void main( String[] args )
+    static public void main( final String[] args )
     {
         try
         {
-            long startMs = System.currentTimeMillis();
+            Runnable r = new Runnable() {
 
-            log.info( "main() started." );
+                @Override
+                public void run()
+                {
+                    log.info( "main() started." );
 
-            IpToolsTester.args = args;
+                    IpToolsTester.args = args;
 
-            new SocketTwoPane().buildUi();
-            //new IpToolsTester().test();
-    //        new IpToolsTester().ircTest();
-    //        new IpToolsTester().jCommanderTest( args );
-    //        new IpToolsTester().args4jTest( args );
+                    new SocketTwoPane().buildUi();
+                    //new IpToolsTester().test();
+            //        new IpToolsTester().ircTest();
+            //        new IpToolsTester().jCommanderTest( args );
+            //        new IpToolsTester().args4jTest( args );
+                }
+            };
 
-            long endMs = System.currentTimeMillis();
+            r = new DurationLoggingRunnable( r, null );
 
-            log.info( "main() finished; duration={} ms.", endMs - startMs );
+            r.run();
         }
         catch( Exception e )
         {
