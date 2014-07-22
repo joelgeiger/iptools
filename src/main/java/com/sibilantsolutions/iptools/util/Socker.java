@@ -20,10 +20,10 @@ import javax.net.ssl.SSLSocketFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sibilantsolutions.iptools.event.LostConnectionEvt;
 import com.sibilantsolutions.iptools.event.ReceiveEvt;
 import com.sibilantsolutions.iptools.event.SocketListenerI;
 
-//TODO: Implement SocketListenerI.onDisconnect().
 //TODO: Log connect duration.
 //TODO: Log SSL handshake duration.
 //TODO: Log connection duration when socket closes (or just use thread duration?).
@@ -153,18 +153,53 @@ public class Socker
                 if ( ! isRunning )
                 {
                     log.info( "Socket closed intentionally by remote host (read returned={})={}.", numRead, socket );
+                    listener.onLostConnection( new LostConnectionEvt( null, socket ) );
                 }
             }
             catch ( SocketException e )
             {
+                    //Work around apparent bug in SSLSocket.isClosed(), where value of isClosed()
+                    //may change over time.
+                if ( socket instanceof SSLSocket )
+                {
+                    boolean initiallyClosed = socket.isClosed();
+
+                    if ( ! initiallyClosed )
+                    {
+                        final int sleepMs = 25 * 1;
+
+                        try
+                        {
+                            Thread.sleep( sleepMs );
+                        }
+                        catch ( InterruptedException e1 )
+                        {
+                            // TODO Auto-generated catch block
+                            throw new UnsupportedOperationException( "OGTE TODO!", e1 );
+                        }
+
+                        boolean nowClosed = socket.isClosed();
+
+                        if ( initiallyClosed != nowClosed )
+                        {
+                            //The bug has occurred: the value of isClosed() has changed.
+                            log.info( "isClosed state changed from {} to {}.", initiallyClosed, nowClosed );
+                        }
+                    }
+                }
+
                 if ( socket.isClosed() )
                 {
-                    log.info( "Socket read unblocked after being closed={}.", socket );
+                        //Somebody in another thread called Socket.close().
+                        //Don't want to call onLostConnection for an internally-generated event,
+                        //only for external event (remote host intentionally closed connection,
+                        //reset connection, or network error).
+                    log.info( "Socket closed intentionally by local host (close invocation caused read to unblock)={}.", socket );
                 }
                 else
                 {
-                    // TODO Auto-generated catch block
-                    throw new UnsupportedOperationException( "OGTE TODO!", e );
+                        //e.g. Connection reset at TCP level.
+                    listener.onLostConnection( new LostConnectionEvt( e, socket ) );
                 }
             }
             catch ( IOException e )
@@ -176,7 +211,8 @@ public class Socker
             if ( isRunning )
             {
                 log.info( "Read=0x{}/{} {}: \n{}",
-                        HexUtils.numToHex( numRead ), numRead, socket, HexDumpDeferred.prettyDump( b, 0, numRead ) );
+                        HexUtils.numToHex( numRead ), numRead, socket,
+                        HexDumpDeferred.prettyDump( b, 0, numRead ) );
 
                 try
                 {
@@ -205,14 +241,16 @@ public class Socker
 
     static public Thread readLoopThread( final Socket socket, final SocketListenerI listener )
     {
-        Runnable r = new DurationLoggingRunnable( new Runnable() {
+        Runnable r = new Runnable() {
 
             @Override
             public void run()
             {
                 readLoop( socket, listener );
             }
-        }, "socket=" + socket );
+        };
+
+        r = new DurationLoggingRunnable( r, "socket=" + socket );
 
         Thread thread = new Thread( r, socket.toString() );
         thread.start();

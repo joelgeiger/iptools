@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import com.sibilantsolutions.iptools.event.LostConnectionEvt;
 import com.sibilantsolutions.iptools.event.ReceiveEvt;
 import com.sibilantsolutions.iptools.event.SocketListenerI;
 
@@ -16,6 +17,13 @@ import com.sibilantsolutions.iptools.event.SocketListenerI;
     public PacketComparingReceiver( List<byte[]> expecteds )
     {
         this.expecteds = expecteds;
+    }
+
+    @Override
+    public void onLostConnection( LostConnectionEvt evt )
+    {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException( "OGTE TODO!" );
     }
 
     @Override

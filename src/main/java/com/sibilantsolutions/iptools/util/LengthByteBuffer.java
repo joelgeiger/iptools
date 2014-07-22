@@ -6,6 +6,7 @@ import java.nio.ByteOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sibilantsolutions.iptools.event.LostConnectionEvt;
 import com.sibilantsolutions.iptools.event.ReceiveEvt;
 import com.sibilantsolutions.iptools.event.SocketListenerI;
 
@@ -295,6 +296,12 @@ public class LengthByteBuffer implements SocketListenerI
         }
     }
 //*/
+    @Override
+    public void onLostConnection( LostConnectionEvt evt )
+    {
+        receiver.onLostConnection( evt );
+    }
+
     @Override
     public void onReceive( ReceiveEvt evt )
     {

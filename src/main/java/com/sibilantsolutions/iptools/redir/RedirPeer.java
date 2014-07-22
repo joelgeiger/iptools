@@ -6,6 +6,7 @@ import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sibilantsolutions.iptools.event.LostConnectionEvt;
 import com.sibilantsolutions.iptools.event.ReceiveEvt;
 import com.sibilantsolutions.iptools.event.SocketListenerI;
 import com.sibilantsolutions.iptools.util.Socker;
@@ -62,10 +63,18 @@ public class RedirPeer implements Runnable
         SocketListenerI listener = new SocketListenerI() {
 
             @Override
+            public void onLostConnection( LostConnectionEvt evt )
+            {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException( "OGTE TODO!" );
+            }
+
+            @Override
             public void onReceive( ReceiveEvt evt )
             {
                 peer.send( evt.getData(), evt.getOffset(), evt.getLength() );
             }
+
         };
 
         Socker.readLoop( socket, listener );

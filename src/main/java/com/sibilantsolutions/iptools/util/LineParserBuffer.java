@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sibilantsolutions.iptools.event.LostConnectionEvt;
 import com.sibilantsolutions.iptools.event.ReceiveEvt;
 import com.sibilantsolutions.iptools.event.SocketListenerI;
 
@@ -142,6 +143,12 @@ public class LineParserBuffer implements SocketListenerI
         }
 
         log.trace( "ALL DONE: The buf={}", buf );
+    }
+
+    @Override
+    public void onLostConnection( LostConnectionEvt evt )
+    {
+        receiver.onLostConnection( evt );
     }
 
     @Override

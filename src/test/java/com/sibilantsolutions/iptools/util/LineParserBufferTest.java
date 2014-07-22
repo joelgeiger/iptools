@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.sibilantsolutions.iptools.event.LostConnectionEvt;
 import com.sibilantsolutions.iptools.event.ReceiveEvt;
 import com.sibilantsolutions.iptools.event.SocketListenerI;
 
@@ -152,12 +153,20 @@ public class LineParserBufferTest
         private List<String> lines = new ArrayList<String>();
 
         @Override
+        public void onLostConnection( LostConnectionEvt evt )
+        {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException( "OGTE TODO!" );
+        }
+
+        @Override
         public void onReceive( ReceiveEvt evt )
         {
                 //TODO: Make sure that this uses the correct encoding.
             String line = new String( evt.getData(), evt.getOffset(), evt.getLength() );
             lines.add( line );
         }
+
     }
 
 }
