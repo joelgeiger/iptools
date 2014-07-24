@@ -1,4 +1,4 @@
-package com.sibilantsolutions.iptools.util;
+package com.sibilantsolutions.iptools.net;
 
 import java.nio.BufferOverflowException;
 import java.nio.ByteOrder;
@@ -9,6 +9,9 @@ import org.slf4j.LoggerFactory;
 import com.sibilantsolutions.iptools.event.LostConnectionEvt;
 import com.sibilantsolutions.iptools.event.ReceiveEvt;
 import com.sibilantsolutions.iptools.event.SocketListenerI;
+import com.sibilantsolutions.iptools.util.Convert;
+import com.sibilantsolutions.iptools.util.HexDump;
+import com.sibilantsolutions.iptools.util.HexDumpDeferred;
 
 public class LengthByteBuffer implements SocketListenerI
 {

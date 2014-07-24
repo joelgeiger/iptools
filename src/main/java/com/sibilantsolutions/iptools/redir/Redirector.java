@@ -9,8 +9,8 @@ import javax.net.ssl.SSLSocket;
 
 import com.sibilantsolutions.iptools.event.ConnectEvent;
 import com.sibilantsolutions.iptools.event.ConnectionListenerI;
+import com.sibilantsolutions.iptools.net.SocketUtils;
 import com.sibilantsolutions.iptools.util.CertDuplicator;
-import com.sibilantsolutions.iptools.util.Socker;
 
 public class Redirector implements ConnectionListenerI
 {
@@ -32,7 +32,7 @@ public class Redirector implements ConnectionListenerI
 
         targetPeer = new RedirPeer();
 
-        Socket targetSocket = Socker.connect( targetHost, targetPort, isTargetSsl );
+        Socket targetSocket = SocketUtils.connect( targetHost, targetPort, isTargetSsl );
 
             //HACK TODO: Cert duplicator needs to be a configurable option.
         if ( isTargetSsl )

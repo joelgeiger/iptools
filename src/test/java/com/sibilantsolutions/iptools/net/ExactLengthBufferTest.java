@@ -1,4 +1,4 @@
-package com.sibilantsolutions.iptools.util;
+package com.sibilantsolutions.iptools.net;
 
 import static org.junit.Assert.assertEquals;
 

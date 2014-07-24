@@ -22,9 +22,9 @@ import javax.swing.SwingUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sibilantsolutions.iptools.net.SocketUtils;
 import com.sibilantsolutions.iptools.util.HexDump;
 import com.sibilantsolutions.iptools.util.HexUtils;
-import com.sibilantsolutions.iptools.util.Socker;
 import com.sibilantsolutions.iptools.util.StringEscape;
 
 public class SocketTwoPane
@@ -80,7 +80,7 @@ public class SocketTwoPane
                             {
                                 String connectingMsg = "Connecting to " + host + ":" + port + ".";
                                 taTop.append( connectingMsg + '\n' );
-                                final Socket socket = Socker.connect( host, port );
+                                final Socket socket = SocketUtils.connect( host, port );
                                 String connectedMsg = "Connected socket=" + socket + ".";
                                 taTop.append( connectedMsg + '\n' );
                                 taBot.addKeyListener( new KeyAdapter() {
@@ -97,7 +97,7 @@ public class SocketTwoPane
                                             taTop.append( dump + '\n' );
 
                                             //TODO: Need to do this outside of the AWT thread.
-                                            Socker.send( text, socket );
+                                            SocketUtils.send( text, socket );
                                         }
                                     }
                                 } );

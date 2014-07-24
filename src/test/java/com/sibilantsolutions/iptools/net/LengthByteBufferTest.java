@@ -1,4 +1,4 @@
-package com.sibilantsolutions.iptools.util;
+package com.sibilantsolutions.iptools.net;
 
 import static org.junit.Assert.assertEquals;
 
@@ -9,7 +9,7 @@ import java.util.List;
 import org.junit.Test;
 
 import com.sibilantsolutions.iptools.event.ReceiveEvt;
-import com.sibilantsolutions.iptools.util.LengthByteBuffer.LengthByteType;
+import com.sibilantsolutions.iptools.net.LengthByteBuffer.LengthByteType;
 
 public class LengthByteBufferTest
 {

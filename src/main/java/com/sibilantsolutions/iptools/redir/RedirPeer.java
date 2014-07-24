@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.sibilantsolutions.iptools.event.LostConnectionEvt;
 import com.sibilantsolutions.iptools.event.ReceiveEvt;
 import com.sibilantsolutions.iptools.event.SocketListenerI;
-import com.sibilantsolutions.iptools.util.Socker;
+import com.sibilantsolutions.iptools.net.SocketUtils;
 
 public class RedirPeer implements Runnable
 {
@@ -77,7 +77,7 @@ public class RedirPeer implements Runnable
 
         };
 
-        Socker.readLoop( socket, listener );
+        SocketUtils.readLoop( socket, listener );
 
         log.info( "Closing peer (if open)." );
         peer.close();
@@ -87,7 +87,7 @@ public class RedirPeer implements Runnable
 
     public void send( byte[] data, int offset, int length )
     {
-        Socker.sendNoLog( data, offset, length, socket );
+        SocketUtils.sendNoLog( data, offset, length, socket );
     }
 
 }

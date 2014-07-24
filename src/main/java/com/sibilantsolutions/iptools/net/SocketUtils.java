@@ -1,4 +1,4 @@
-package com.sibilantsolutions.iptools.util;
+package com.sibilantsolutions.iptools.net;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +23,10 @@ import org.slf4j.LoggerFactory;
 import com.sibilantsolutions.iptools.event.LostConnectionEvt;
 import com.sibilantsolutions.iptools.event.ReceiveEvt;
 import com.sibilantsolutions.iptools.event.SocketListenerI;
+import com.sibilantsolutions.iptools.util.DurationLoggingRunnable;
+import com.sibilantsolutions.iptools.util.HexDump;
+import com.sibilantsolutions.iptools.util.HexDumpDeferred;
+import com.sibilantsolutions.iptools.util.HexUtils;
 
 //TODO: Log connect duration.
 //TODO: Log SSL handshake duration.
@@ -34,9 +38,9 @@ import com.sibilantsolutions.iptools.event.SocketListenerI;
 //TODO: Set to decide whether an exception should close the socket or not; also apply setting to
 //      buffers (e.g. LengthByteBuffer).
 
-public class Socker
+public class SocketUtils
 {
-    final static private Logger log = LoggerFactory.getLogger( Socker.class );
+    final static private Logger log = LoggerFactory.getLogger( SocketUtils.class );
 
     static public Socket connect( InetSocketAddress socketAddress )
     {
