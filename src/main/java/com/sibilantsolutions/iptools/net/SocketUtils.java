@@ -20,6 +20,8 @@ import javax.net.ssl.SSLSocketFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sibilantsolutions.iptools.event.DatagramReceiveEvt;
+import com.sibilantsolutions.iptools.event.DatagramReceiverI;
 import com.sibilantsolutions.iptools.event.LostConnectionEvt;
 import com.sibilantsolutions.iptools.event.ReceiveEvt;
 import com.sibilantsolutions.iptools.event.SocketListenerI;
@@ -146,8 +148,9 @@ public class SocketUtils
         boolean isRunning = true;
         while ( isRunning )
         {
-            int numRead = -1304231933;
             isRunning = false;
+
+            int numRead = -1304231933;
 
             try
             {
@@ -198,7 +201,8 @@ public class SocketUtils
                         //Don't want to call onLostConnection for an internally-generated event,
                         //only for external event (remote host intentionally closed connection,
                         //reset connection, or network error).
-                    log.info( "Socket closed intentionally by local host (close invocation caused read to unblock)={}.", socket );
+                    log.info( "Socket closed intentionally by local host (close invocation caused read to unblock)={}.",
+                            socket );
                 }
                 else
                 {
@@ -261,14 +265,79 @@ public class SocketUtils
         return thread;
     }
 
-    static public void send( byte[] buf, Socket socket )
+    static public void receiveLoop( DatagramPacket packet, DatagramSocket socket, DatagramReceiverI receiver )
     {
-        send( buf, 0, buf.length, socket );
+        final String sockID = socket.getLocalSocketAddress().toString();
+
+        log.info( "Running receive loop for socket={}.", sockID );
+
+        boolean isRunning = true;
+
+        while ( isRunning )
+        {
+            isRunning = false;
+
+            try
+            {
+                socket.receive( packet );
+                isRunning = true;
+            }
+            catch ( SocketException e )
+            {
+                if ( socket.isClosed() )
+                {
+                        //Somebody in another thread called DatagramSocket.close().
+                        //Don't want to call onLostConnection for an internally-generated event,
+                        //only for external event (remote host intentionally closed connection,
+                        //reset connection, or network error).
+                    log.info( "DatagramSocket closed intentionally by local host (close invocation caused receive to unblock)={}.",
+                            sockID );
+                }
+                else
+                {
+                    // TODO Auto-generated catch block
+                    throw new UnsupportedOperationException( "MY TODO!", e );
+                }
+            }
+            catch ( IOException e )
+            {
+                // TODO Auto-generated catch block
+                throw new UnsupportedOperationException( "MY TODO!", e );
+            }
+
+            if ( isRunning )
+            {
+                log.info( "Received from {} -> {}, len=0x{}/{} \n{}.", packet.getSocketAddress(), sockID,
+                        HexUtils.numToHex( packet.getLength() ), packet.getLength(),
+                        HexDumpDeferred.prettyDump( packet.getData(), packet.getOffset(), packet.getLength() ) );
+
+                DatagramReceiveEvt evt = new DatagramReceiveEvt( packet, socket );
+
+                receiver.onReceive( evt );
+            }
+        }
+
+        log.info( "Finished receive loop for socket={}.", sockID );
     }
 
-    static public void send( byte[] buf, int length, Socket socket )
+    static public Thread receiveLoopThread( final DatagramPacket packet, final DatagramSocket socket, final DatagramReceiverI receiver )
     {
-        send( buf, 0, length, socket );
+        Runnable r = new Runnable() {
+
+            @Override
+            public void run()
+            {
+                receiveLoop( packet, socket, receiver );
+            }
+        };
+
+        final String socketId = socket.getLocalSocketAddress().toString();
+
+        r = new DurationLoggingRunnable( r, "socket=" + socketId );
+
+        Thread t = new Thread( r, socketId );
+        t.start();
+        return t;
     }
 
     static public void send( byte[] buf, int offset, int length, Socket socket )
@@ -278,6 +347,16 @@ public class SocketUtils
 
         sendNoLog( buf, offset, length, socket );
 
+    }
+
+    static public void send( byte[] buf, int length, Socket socket )
+    {
+        send( buf, 0, length, socket );
+    }
+
+    static public void send( byte[] buf, Socket socket )
+    {
+        send( buf, 0, buf.length, socket );
     }
 
     static public void send( DatagramPacket packet, DatagramSocket socket )
