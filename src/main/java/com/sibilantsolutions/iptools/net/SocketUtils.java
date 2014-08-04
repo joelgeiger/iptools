@@ -307,8 +307,9 @@ public class SocketUtils
 
             if ( isRunning )
             {
-                log.info( "Received from {} -> {}, len=0x{}/{} \n{}.", packet.getSocketAddress(), sockID,
+                log.info( "Received UDP=0x{}/{}, socket={} <- from={}: \n{}",
                         HexUtils.numToHex( packet.getLength() ), packet.getLength(),
+                        sockID, packet.getSocketAddress(),
                         HexDumpDeferred.prettyDump( packet.getData(), packet.getOffset(), packet.getLength() ) );
 
                 DatagramReceiveEvt evt = new DatagramReceiveEvt( packet, socket );
@@ -368,7 +369,7 @@ public class SocketUtils
         String sockID = socket.getLocalSocketAddress().toString();
         String destID = packet.getSocketAddress().toString();
 
-        log.info( "Send UDP=0x{}/{} {} -> {}: \n{}",
+        log.info( "Send UDP=0x{}/{} socket={} -> to={}: \n{}",
                 HexUtils.numToHex( length ), length, sockID, destID,
                 HexDumpDeferred.prettyDump( buf, offset, length ) );
 
