@@ -40,12 +40,25 @@ public class DurationLoggingCallable<V> implements Callable<V>
         }
         catch ( Exception e )
         {
-            if ( debugId != null )
-                log.error( "Trouble running thread=" + Thread.currentThread() + " for " + debugId + ":", e );
-            else
-                log.error( "Trouble running thread=" + Thread.currentThread() + ":", e );
+            long endMs = System.currentTimeMillis();
 
-            throw e;
+            long duration = endMs - startMs;
+
+                //Goal: know WHERE the exception occurred (the cause) and WHO caught it (us).
+            RuntimeException re = new RuntimeException( e );
+
+            if ( debugId != null )
+            {
+                log.error( "Trouble running thread=" + Thread.currentThread() + " for " + debugId +
+                        ", duration=" + format.format( duration ) + " ms:", re );
+            }
+            else
+            {
+                log.error( "Trouble running thread=" + Thread.currentThread() +
+                        ", duration=" + format.format( duration ) + " ms:", re );
+            }
+
+            throw re;
         }
 
         long endMs = System.currentTimeMillis();
