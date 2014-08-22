@@ -9,6 +9,8 @@ public class DatagramReceiveEvt
     private DatagramPacket packet;
     private DatagramSocket source;
 
+    final private long timestamp = System.currentTimeMillis();
+
     public DatagramReceiveEvt( DatagramPacket packet, DatagramSocket source )
     {
         this.packet = packet;
@@ -23,6 +25,11 @@ public class DatagramReceiveEvt
     public DatagramSocket getSource()
     {
         return source;
+    }
+
+    public long getTimestamp()
+    {
+        return timestamp;
     }
 
 }

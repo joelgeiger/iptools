@@ -9,6 +9,8 @@ public class LostConnectionEvt
     private IOException cause;
     private Socket source;
 
+    final private long timestamp = System.currentTimeMillis();
+
     public LostConnectionEvt( IOException cause, Socket source )
     {
         this.cause = cause;
@@ -23,6 +25,11 @@ public class LostConnectionEvt
     public Socket getSource()
     {
         return source;
+    }
+
+    public long getTimestamp()
+    {
+        return timestamp;
     }
 
 }

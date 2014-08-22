@@ -9,6 +9,8 @@ public class ConnectEvent
     private Socket socket;
     private ServerSocket server;
 
+    final private long timestamp = System.currentTimeMillis();
+
     public ConnectEvent( Socket socket, ServerSocket server )
     {
         this.socket = socket;
@@ -23,6 +25,11 @@ public class ConnectEvent
     public ServerSocket getServer()
     {
         return server;
+    }
+
+    public long getTimestamp()
+    {
+        return timestamp;
     }
 
 }
