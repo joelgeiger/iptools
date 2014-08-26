@@ -77,7 +77,7 @@ public class RedirPeer implements Runnable
 
         };
 
-        SocketUtils.readLoop( socket, listener );
+        SocketUtils.readLoop( 4096, socket, listener );
 
         log.info( "Closing peer (if open)." );
         peer.close();

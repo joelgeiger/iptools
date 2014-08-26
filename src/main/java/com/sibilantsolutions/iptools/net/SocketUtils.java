@@ -129,7 +129,7 @@ public class SocketUtils
         return connect( inetSocketAddress, isSsl );
     }
 
-    static public void readLoop( Socket socket, SocketListenerI listener )
+    static public void readLoop( int bufferSize, Socket socket, SocketListenerI listener )
     {
         log.info( "Running read loop for socket={}.", socket );
 
@@ -144,7 +144,7 @@ public class SocketUtils
             throw new UnsupportedOperationException( "OGTE TODO!", e );
         }
 
-        byte[] b = new byte[4096];
+        byte[] b = new byte[bufferSize];
         boolean isRunning = true;
         while ( isRunning )
         {
@@ -255,12 +255,17 @@ public class SocketUtils
 
     static public Thread readLoopThread( final Socket socket, final SocketListenerI listener )
     {
+        return readLoopThread( 4096, socket, listener );
+    }
+
+    static public Thread readLoopThread( final int bufferSize, final Socket socket, final SocketListenerI listener )
+    {
         Runnable r = new Runnable() {
 
             @Override
             public void run()
             {
-                readLoop( socket, listener );
+                readLoop( bufferSize, socket, listener );
             }
         };
 
