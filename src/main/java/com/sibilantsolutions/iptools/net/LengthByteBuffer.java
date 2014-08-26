@@ -12,6 +12,7 @@ import com.sibilantsolutions.iptools.event.SocketListenerI;
 import com.sibilantsolutions.iptools.util.Convert;
 import com.sibilantsolutions.iptools.util.HexDump;
 import com.sibilantsolutions.iptools.util.HexDumpDeferred;
+import com.sibilantsolutions.iptools.util.HexUtils;
 
 public class LengthByteBuffer implements SocketListenerI
 {
@@ -163,8 +164,14 @@ public class LengthByteBuffer implements SocketListenerI
                             //normal case of having received a single complete packet.
                         if ( keepChecking || numFired > 0 )
                         {
-                            log.debug( "Firing single packet to receiver: \n{}",
+                            log.debug( "Firing single packet=0x{}/{} to receiver: \n{}",
+                                    HexUtils.numToHex( singlePacket.length ), singlePacket.length,
                                     HexDumpDeferred.prettyDump( singlePacket ) );
+                        }
+                        else
+                        {
+                            log.debug( "Firing single packet=0x{}/{} to receiver.",
+                                    HexUtils.numToHex( singlePacket.length ), singlePacket.length );
                         }
 
                         try

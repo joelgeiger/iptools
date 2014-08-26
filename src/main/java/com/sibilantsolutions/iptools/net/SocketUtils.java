@@ -218,13 +218,19 @@ public class SocketUtils
 
             if ( isRunning )
             {
+                    //Give a copy to the listener, not our original buffer.  They may queue this
+                    //or otherwise delay processing and we don't want to read again into the same
+                    //array.
+                byte[] copy = new byte[numRead];
+                System.arraycopy( b, 0, copy, 0, numRead );
+
                 log.info( "Read=0x{}/{} {}: \n{}",
                         HexUtils.numToHex( numRead ), numRead, socket,
-                        HexDumpDeferred.prettyDump( b, 0, numRead ) );
+                        HexDumpDeferred.prettyDump( copy ) );
 
                 try
                 {
-                    listener.onReceive( new ReceiveEvt( b, numRead, socket ) );
+                    listener.onReceive( new ReceiveEvt( copy, socket ) );
                 }
                 catch ( Exception e )
                 {
