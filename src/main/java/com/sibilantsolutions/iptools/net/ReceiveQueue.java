@@ -6,13 +6,16 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sibilantsolutions.iptools.event.LostConnectionEvt;
 import com.sibilantsolutions.iptools.event.ReceiveEvt;
 import com.sibilantsolutions.iptools.event.SocketListenerI;
 
 public class ReceiveQueue implements SocketListenerI
 {
-    //final static private Logger log = LoggerFactory.getLogger( ReceiveQueue.class );
+    final static private Logger log = LoggerFactory.getLogger( ReceiveQueue.class );
 
     private SocketListenerI dest;
 
@@ -37,8 +40,7 @@ public class ReceiveQueue implements SocketListenerI
                     @Override
                     public void uncaughtException( Thread t, Throwable e )
                     {
-                        // TODO Auto-generated method stub
-                        throw new UnsupportedOperationException( "MY TODO!", e );
+                        log.error( "Uncaught exception in thread=" + t + ":", e );
                     }
                 } );
 
