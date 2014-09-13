@@ -92,7 +92,11 @@ public class LengthByteBuffer implements SocketListenerI
 
             if ( len == 0 )
             {
-                throw new BufferOverflowException();
+//            	throw new BufferOverflowException();
+            	//After lost network connection (wifi dropped):
+                throw new RuntimeException( "offset=" + rawOffset + ", length=" + rawLength +
+                		", buf len=" + buf.length + ", cur offset=" + curOff +
+                		", remaining=" + remaining, new BufferOverflowException() );
             }
 
             System.arraycopy( evt.getData(), rawOffset, buf, curOff, len );
