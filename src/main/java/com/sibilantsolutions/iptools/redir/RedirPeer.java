@@ -65,8 +65,7 @@ public class RedirPeer implements Runnable
             @Override
             public void onLostConnection( LostConnectionEvt evt )
             {
-                // TODO Auto-generated method stub
-                throw new UnsupportedOperationException( "OGTE TODO!" );
+                //No-op; readLoop will return below and we will fall out.
             }
 
             @Override
