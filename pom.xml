@@ -9,7 +9,7 @@
   <name>IP Tools</name>
   <description>IP networking tools</description>
   
-  <url>https://github.com/joelgeiger</url>
+  <url>https://github.com/jtgeiger</url>
  
   <developers>
     <developer>
@@ -26,9 +26,9 @@
   </licenses>
   
    <scm>
-    <url>scm:git:git@github.com:joelgeiger/iptools.git</url>
-    <connection>scm:git:git@github.com:joelgeiger/iptools.git</connection>
-    <developerConnection>scm:git:git@github.com:joelgeiger/iptools.git</developerConnection>
+    <url>scm:git:git@github.com:jtgeiger/iptools.git</url>
+    <connection>scm:git:git@github.com:jtgeiger/iptools.git</connection>
+    <developerConnection>scm:git:git@github.com:jtgeiger/iptools.git</developerConnection>
   </scm>
   
   <properties>
