@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sibilantsolutions.iptools.gui.SocketTwoPane;
-import com.sibilantsolutions.iptools.util.DurationLoggingRunnable;
+import com.sibilantsolutions.utils.util.DurationLoggingRunnable;
 
 public class IpToolsTester
 {

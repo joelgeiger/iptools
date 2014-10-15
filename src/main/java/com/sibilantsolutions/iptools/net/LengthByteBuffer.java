@@ -9,10 +9,10 @@ import org.slf4j.LoggerFactory;
 import com.sibilantsolutions.iptools.event.LostConnectionEvt;
 import com.sibilantsolutions.iptools.event.ReceiveEvt;
 import com.sibilantsolutions.iptools.event.SocketListenerI;
-import com.sibilantsolutions.iptools.util.Convert;
-import com.sibilantsolutions.iptools.util.HexDump;
-import com.sibilantsolutions.iptools.util.HexDumpDeferred;
-import com.sibilantsolutions.iptools.util.HexUtils;
+import com.sibilantsolutions.utils.util.Convert;
+import com.sibilantsolutions.utils.util.HexDump;
+import com.sibilantsolutions.utils.util.HexDumpDeferred;
+import com.sibilantsolutions.utils.util.HexUtils;
 
 public class LengthByteBuffer implements SocketListenerI
 {

@@ -23,9 +23,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sibilantsolutions.iptools.net.SocketUtils;
-import com.sibilantsolutions.iptools.util.HexDump;
-import com.sibilantsolutions.iptools.util.HexUtils;
-import com.sibilantsolutions.iptools.util.StringEscape;
+import com.sibilantsolutions.utils.util.HexDump;
+import com.sibilantsolutions.utils.util.HexUtils;
+import com.sibilantsolutions.utils.util.StringEscape;
 
 public class SocketTwoPane
 {

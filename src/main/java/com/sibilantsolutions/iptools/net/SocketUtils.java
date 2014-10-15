@@ -25,10 +25,10 @@ import com.sibilantsolutions.iptools.event.DatagramReceiverI;
 import com.sibilantsolutions.iptools.event.LostConnectionEvt;
 import com.sibilantsolutions.iptools.event.ReceiveEvt;
 import com.sibilantsolutions.iptools.event.SocketListenerI;
-import com.sibilantsolutions.iptools.util.DurationLoggingRunnable;
-import com.sibilantsolutions.iptools.util.HexDump;
-import com.sibilantsolutions.iptools.util.HexDumpDeferred;
-import com.sibilantsolutions.iptools.util.HexUtils;
+import com.sibilantsolutions.utils.util.DurationLoggingRunnable;
+import com.sibilantsolutions.utils.util.HexDump;
+import com.sibilantsolutions.utils.util.HexDumpDeferred;
+import com.sibilantsolutions.utils.util.HexUtils;
 
 //TODO: Log connect duration.
 //TODO: Log SSL handshake duration.
