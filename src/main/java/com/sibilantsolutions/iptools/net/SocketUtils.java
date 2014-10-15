@@ -224,7 +224,7 @@ public class SocketUtils
                 byte[] copy = new byte[numRead];
                 System.arraycopy( b, 0, copy, 0, numRead );
 
-                log.info( "Read=0x{}/{} {}: \n{}",
+                log.debug( "Read=0x{}/{} {}: \n{}",
                         HexUtils.numToHex( numRead ), numRead, socket,
                         HexDumpDeferred.prettyDump( copy ) );
 
@@ -318,7 +318,7 @@ public class SocketUtils
 
             if ( isRunning )
             {
-                log.info( "Received UDP=0x{}/{}, socket={} <- from={}: \n{}",
+                log.debug( "Received UDP=0x{}/{}, socket={} <- from={}: \n{}",
                         HexUtils.numToHex( packet.getLength() ), packet.getLength(),
                         sockID, packet.getSocketAddress(),
                         HexDumpDeferred.prettyDump( packet.getData(), packet.getOffset(), packet.getLength() ) );
@@ -354,7 +354,7 @@ public class SocketUtils
 
     static public void send( byte[] buf, int offset, int length, Socket socket )
     {
-        log.info( "Send=0x{}/{} {}: \n{}",
+        log.debug( "Send=0x{}/{} {}: \n{}",
                 HexUtils.numToHex( length ), length, socket, HexDumpDeferred.prettyDump( buf, offset, length ) );
 
         sendNoLog( buf, offset, length, socket );
@@ -380,7 +380,7 @@ public class SocketUtils
         String sockID = socket.getLocalSocketAddress().toString();
         String destID = packet.getSocketAddress().toString();
 
-        log.info( "Send UDP=0x{}/{} socket={} -> to={}: \n{}",
+        log.debug( "Send UDP=0x{}/{} socket={} -> to={}: \n{}",
                 HexUtils.numToHex( length ), length, sockID, destID,
                 HexDumpDeferred.prettyDump( buf, offset, length ) );
 
