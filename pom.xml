@@ -4,7 +4,7 @@
   
   <groupId>com.sibilantsolutions.iptools</groupId>
   <artifactId>iptools</artifactId>
-  <version>0.0.2-SNAPSHOT</version>
+  <version>0.0.2</version>
   <packaging>jar</packaging>
 
   <name>IP Tools</name>
@@ -30,6 +30,7 @@
     <url>scm:git:git@github.com:jtgeiger/iptools.git</url>
     <connection>scm:git:git@github.com:jtgeiger/iptools.git</connection>
     <developerConnection>scm:git:git@github.com:jtgeiger/iptools.git</developerConnection>
+    <tag>iptools-0.0.2</tag>
   </scm>
   
   <properties>
