@@ -67,6 +67,9 @@ public class SocketUtils
         }
         catch ( Exception e )
         {
+            // Logging at info instead of error; caller can log error if it wants.
+            log.info( "Failed to make TCP/IP connection to host=" + socketAddress + ":", e );
+
             // TODO Auto-generated catch block
             throw new UnsupportedOperationException( "OGTE TODO!", e );
         }
