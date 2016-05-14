@@ -1,5 +1,11 @@
 package com.sibilantsolutions.iptools.net;
 
+import com.sibilantsolutions.iptools.event.LostConnectionEvt;
+import com.sibilantsolutions.iptools.event.ReceiveEvt;
+import com.sibilantsolutions.iptools.event.SocketListenerI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -8,13 +14,20 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sibilantsolutions.iptools.event.LostConnectionEvt;
-import com.sibilantsolutions.iptools.event.ReceiveEvt;
-import com.sibilantsolutions.iptools.event.SocketListenerI;
-
+/**
+ * ReceiveQueue is a <a href="https://en.wikipedia.org/wiki/Decorator_pattern">decorator</a> for a SocketListenerI and
+ * is intended to be used in a "receiver chain" with another instance of SocketListenerI.  This class maintains an
+ * executor service containing a single thread, which is used as a queue.  When data is received from the socket and
+ * onReceive is called, the data will be put into the queue and the calling thread can immediately go back to read more
+ * data.  Meanwhile, the queued message will be fired to the decorated SocketListenerI for handling.
+ * <p>
+ * This is a low-level queue which contains only the raw byte stream received from the operating system.  It is the
+ * responsibility of the application to assemble the byte stream into more meaningful data structures.
+ * <p>
+ * Benefits:
+ * - gets data out of the operating system receive queue and into the control of the application
+ * - allows queued data to be drained into the application in case of a lost connection before notifying the application of lost connection
+ */
 public class ReceiveQueue implements SocketListenerI
 {
     final static private Logger log = LoggerFactory.getLogger( ReceiveQueue.class );
