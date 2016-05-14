@@ -1,11 +1,5 @@
 package com.sibilantsolutions.iptools.net;
 
-import java.nio.BufferOverflowException;
-import java.nio.ByteOrder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sibilantsolutions.iptools.event.LostConnectionEvt;
 import com.sibilantsolutions.iptools.event.ReceiveEvt;
 import com.sibilantsolutions.iptools.event.SocketListenerI;
@@ -13,6 +7,11 @@ import com.sibilantsolutions.utils.util.Convert;
 import com.sibilantsolutions.utils.util.HexDump;
 import com.sibilantsolutions.utils.util.HexDumpDeferred;
 import com.sibilantsolutions.utils.util.HexUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.nio.BufferOverflowException;
+import java.nio.ByteOrder;
 
 public class LengthByteBuffer implements SocketListenerI
 {
@@ -81,7 +80,7 @@ public class LengthByteBuffer implements SocketListenerI
         int rawOffset = evt.getOffset();
         final int rawLength = evt.getLength();
 
-        log.debug( "======== doReceiveBuffer: offset={}, length={}.",
+        log.trace("======== doReceiveBuffer: offset={}, length={}.",
                 rawOffset, rawLength );
 
         while ( rawOffset < rawLength )
@@ -168,13 +167,13 @@ public class LengthByteBuffer implements SocketListenerI
                             //normal case of having received a single complete packet.
                         if ( keepChecking || numFired > 0 )
                         {
-                            log.debug( "Firing single packet=0x{}/{} to receiver: \n{}",
+                            log.trace("Firing single packet=0x{}/{} to receiver: \n{}",
                                     HexUtils.numToHex( singlePacket.length ), singlePacket.length,
                                     HexDumpDeferred.prettyDump( singlePacket ) );
                         }
                         else
                         {
-                            log.debug( "Firing single packet=0x{}/{} to receiver.",
+                            log.trace("Firing single packet=0x{}/{} to receiver.",
                                     HexUtils.numToHex( singlePacket.length ), singlePacket.length );
                         }
 
@@ -192,14 +191,14 @@ public class LengthByteBuffer implements SocketListenerI
                     }
                     else
                     {
-                        log.debug( "Received length bytes, but not all data yet ({} of {} bytes).",
+                        log.trace("Received length bytes, but not all data yet ({} of {} bytes).",
                                 curOff, packetLen );
                         keepChecking = false;
                     }
                 }
                 else
                 {
-                    log.debug( "Received data, but not length bytes yet ({} bytes).", curOff );
+                    log.trace("Received data, but not length bytes yet ({} bytes).", curOff);
                     keepChecking = false;
                 }
             }
