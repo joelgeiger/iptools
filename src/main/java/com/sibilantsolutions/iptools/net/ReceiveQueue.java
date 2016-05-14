@@ -32,13 +32,19 @@ public class ReceiveQueue implements SocketListenerI
 {
     final static private Logger log = LoggerFactory.getLogger( ReceiveQueue.class );
 
-    private SocketListenerI dest;
+    private final SocketListenerI dest;
+    private final String name;
 
-    final private ThreadPoolExecutor executorService = createExecutorService();
+    private final ThreadPoolExecutor executorService = createExecutorService();
 
     public ReceiveQueue( SocketListenerI dest )
     {
+        this(dest, "recvQ " + dest);
+    }
+
+    public ReceiveQueue(SocketListenerI dest, String name) {
         this.dest = dest;
+        this.name = name;
     }
 
     private ThreadPoolExecutor createExecutorService()
@@ -48,7 +54,7 @@ public class ReceiveQueue implements SocketListenerI
             @Override
             public Thread newThread( Runnable r )
             {
-                Thread t = new Thread( r, "queueTaker " + dest );
+                Thread t = new Thread(r, name);
 
                 t.setUncaughtExceptionHandler( new UncaughtExceptionHandler() {
 
