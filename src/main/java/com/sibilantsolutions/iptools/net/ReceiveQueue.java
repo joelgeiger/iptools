@@ -80,11 +80,24 @@ public class ReceiveQueue implements SocketListenerI
     {
         log.info( "Lost connection: Shutting down executor service." );
 
-        shutdownAndAwaitTermination( executorService, executorService.getQueue().size() );
+        /*
+         * This allows any received data to continue to be processed.  This would be fine for streamed image data, to
+         * which we aren't expected to respond.  However, if processing the data would cause data to be sent back on the
+         * socket then that is a problem since we have lost connection.
+         */
+        shutdownAndAwaitTermination();
 
         log.info( "Lost connection: Firing event to destination." );
 
         dest.onLostConnection( evt );
+    }
+
+    public void shutdownAndAwaitTermination() {
+        shutdownAndAwaitTermination(executorService, executorService.getQueue().size());
+    }
+
+    public List<Runnable> shutdownNow() {
+        return executorService.shutdownNow();
     }
 
     @Override
