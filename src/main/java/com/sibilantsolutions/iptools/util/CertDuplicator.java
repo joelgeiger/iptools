@@ -39,8 +39,8 @@ abstract public class CertDuplicator
     /**
      * Create a self-signed certificate that duplicates as many of the given cert's fields as possible.
      *
-     * @param cert
-     * @return
+     * @param cert Source certificate
+     * @return A self-signed X509Certificate certificate, not null
      */
     static public X509Certificate duplicate( X509Certificate cert )
     {

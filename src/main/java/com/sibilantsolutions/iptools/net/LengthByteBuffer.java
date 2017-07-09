@@ -51,15 +51,15 @@ public class LengthByteBuffer implements SocketListenerI
 
     /**
      *
-     * @param lengthBytesOffset
-     * @param numLengthBytes
-     * @param lengthByteType
-     * @param byteOrder
+     * @param lengthBytesOffset Number of bytes from start of message at which length byte(s) begin.
+     * @param numLengthBytes Number of bytes used to represent the length of the message.
+     * @param lengthByteType Length byte type
+     * @param byteOrder Byte order of length bytes
      * @param padBytes
      *      Number of bytes after the length byte(s) and before the data; only used when
      *      lengthByteType is LENGTH_OF_PAYLOAD.
-     * @param bufferCapacity
-     * @param receiver
+     * @param bufferCapacity Capacity of internal buffer used to hold paritial messages
+     * @param receiver Receiver that will be given single, complete messages.
      */
     public LengthByteBuffer( int lengthBytesOffset, int numLengthBytes, LengthByteType lengthByteType,
             ByteOrder byteOrder, int padBytes, int bufferCapacity, SocketListenerI receiver )
@@ -210,105 +210,6 @@ public class LengthByteBuffer implements SocketListenerI
 //        }
     }
 
-/**out
-    private void doReceiveBuffer( ReceiveEvt evt )
-    {
-        int rawOffset = evt.getOffset();
-        final int rawLength = evt.getLength();
-
-        log.debug( "======== doReceiveBuffer: offset={}, length={}.",
-                rawOffset, rawLength );
-
-        while ( rawOffset < rawLength )
-        {
-            log.debug( "before put: {}.", buf );
-
-            int remaining = buf.remaining();
-
-            int len = Math.min( rawLength - rawOffset, remaining );
-
-            buf.put( evt.getData(), rawOffset, len );
-            rawOffset += len;
-
-            log.debug( "after put: {}.", buf );
-
-            final int curLen = buf.position();
-
-            log.debug( "rawOffset={}, lengtyBytesOffset={}, numLengthBytes={}.",
-                    rawOffset, lengthBytesOffset, numLengthBytes );
-
-            if ( curLen >= lengthBytesOffset + numLengthBytes )
-            {
-                buf.flip();
-
-                log.debug( "after flip: {}.", buf );
-
-                buf.position( lengthBytesOffset );
-
-                log.debug( "after position: {}.", buf );
-
-                byte[] lengthBytes = new byte[numLengthBytes];
-                buf.get( lengthBytes );
-
-                log.debug( "after get: {}.", buf );
-
-                int packetLen = (int)Convert.toNum( lengthBytes, 0, lengthBytes.length );
-
-                log.debug( "curLen={}, packetLen={}.", curLen, packetLen );
-
-                if ( curLen >= packetLen )
-                {
-                    log.debug( "curLen={} so reached target={}.", curLen, packetLen );
-
-                    buf.rewind();
-
-                    log.debug( "after rewind: {}.", buf );
-
-                    byte[] singlePacket = new byte[packetLen];
-
-                    buf.get( singlePacket );
-
-                    log.debug( "after get: {}.", buf );
-
-                    buf.compact();
-
-                    log.debug( "after compact: {}.", buf );
-
-                    ReceiveEvt packetEvt = new ReceiveEvt( singlePacket, evt.getSource() );
-
-                    try
-                    {
-                        receiver.onReceive( packetEvt );
-                    }
-                    catch ( Exception e )
-                    {
-                        throw new RuntimeException( "Trouble processing packet (exception follows data): \n" +
-                                HexDump.prettyDump( singlePacket ), e );
-                    }
-                }
-                else
-                {
-                    log.debug( "Received length bytes, but not all data yet." );
-
-                        //TODO: Is there a simple way to do both at once?
-                    buf.limit( buf.capacity() );
-                    buf.position( curLen );
-
-                    log.debug( "after limit & position: {}.", buf );
-                }
-            }
-            else
-            {
-                log.debug( "Received data, but not length bytes yet." );
-            }
-        }
-
-        if ( buf.position() != 0 )
-        {
-            log.debug( "Have a partial message; waiting for more data." );
-        }
-    }
-//*/
     @Override
     public void onLostConnection( LostConnectionEvt evt )
     {
